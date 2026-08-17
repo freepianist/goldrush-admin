@@ -1,0 +1,158 @@
+// Keep in sync with goldrush/prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LedgerKind {
+  BET
+  WIN
+  CANCEL
+  DEPOSIT
+  WITHDRAW
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model User {
+  id                String            @id @default(cuid())
+  email             String            @unique
+  passwordHash      String
+  firstName         String
+  lastName          String
+  scorpioPlayerCode Int?
+  status            UserStatus        @default(ACTIVE)
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  wallet            Wallet?
+  ledger            LedgerEntry[]
+  reviews           GameReview[]
+  reviewReplies     GameReviewReply[]
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance   Decimal  @default(0) @db.Decimal(18, 4)
+  currency  String   @default("USD")
+  updatedAt DateTime @updatedAt
+}
+
+model LedgerEntry {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerTxId String?    @unique
+  referenceId  String?
+  roundId      String?
+  kind         LedgerKind
+  amount       Decimal    @db.Decimal(18, 4)
+  balanceAfter Decimal    @db.Decimal(18, 4)
+  providerId   Int?
+  gameCode     String?
+  createdAt    DateTime   @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([roundId])
+  @@index([referenceId])
+}
+
+model GameReview {
+  id          String            @id @default(cuid())
+  providerId  Int
+  gameCode    String
+  userId      String?
+  user        User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorName  String
+  authorEmail String
+  rating      Int
+  content     String
+  createdAt   DateTime          @default(now())
+  replies     GameReviewReply[]
+
+  @@index([providerId, gameCode, createdAt(sort: Desc)])
+}
+
+model GameReviewReply {
+  id         String     @id @default(cuid())
+  reviewId   String
+  review     GameReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorName String
+  content    String
+  createdAt  DateTime   @default(now())
+
+  @@index([reviewId, createdAt])
+}
+
+model BlogPost {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  title       String
+  excerpt     String
+  body        String        @db.Text
+  image       String
+  tag         String
+  author      String
+  authorImage String
+  publishedAt DateTime      @default(now())
+  comments    BlogComment[]
+
+  @@index([publishedAt(sort: Desc)])
+}
+
+model BlogComment {
+  id          String   @id @default(cuid())
+  postId      String
+  post        BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorName  String
+  authorEmail String
+  content     String
+  createdAt   DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+model SuccessStory {
+  id         String   @id @default(cuid())
+  authorName String
+  role       String   @default("Player")
+  content    String
+  image      String   @default("/images/avatar/one.png")
+  rating     Int      @default(5)
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String   @default("")
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([read])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
