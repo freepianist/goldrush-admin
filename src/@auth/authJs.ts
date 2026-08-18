@@ -1,6 +1,5 @@
 import '@/lib/env-bootstrap';
 import NextAuth, { CredentialsSignin } from 'next-auth';
-import { User } from '@auth/user';
 import { createStorage } from 'unstorage';
 import memoryDriver from 'unstorage/drivers/memory';
 import vercelKVDriver from 'unstorage/drivers/vercel-kv';
@@ -8,7 +7,6 @@ import { UnstorageAdapter } from '@auth/unstorage-adapter';
 import type { NextAuthConfig } from 'next-auth';
 import type { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
-import { authGetDbUserByEmail, authCreateDbUser } from './authApi';
 import { prisma } from '@/lib/db';
 import { readEnv } from '@/lib/env';
 import { verifyAffiliatePassword } from '@/lib/affiliates';
@@ -208,44 +206,18 @@ const config = {
 				return session;
 			}
 
-			if (session) {
-				try {
-					/**
-					 * Get the session user from database
-					 */
-					const response = await authGetDbUserByEmail(session.user.email);
+			session.db = {
+				id: String(token.email || token.sub || 'admin'),
+				role: ['admin'],
+				displayName: String(token.name || 'WinPeak Admin'),
+				email: session.user.email,
+				photoURL: '',
+				shortcuts: ['dashboards.winpeak', 'apps.players', 'apps.ledger'],
+				settings: {},
+				loginRedirectUrl: '/dashboards/winpeak'
+			};
 
-					const userDbData = (await response.json()) as User;
-
-					session.db = userDbData;
-
-					return session;
-				} catch (error) {
-					const errorStatus = error?.status;
-
-					/** If user not found, create a new user */
-					if (errorStatus === 404) {
-						const newUserResponse = await authCreateDbUser({
-							email: session.user.email,
-							role: ['admin'],
-							displayName: session.user.name,
-							photoURL: session.user.image
-						});
-
-						const newUser = (await newUserResponse.json()) as User;
-
-						console.error('Error fetching user data:', error);
-
-						session.db = newUser;
-
-						return session;
-					}
-
-					throw error;
-				}
-			}
-
-			return null;
+			return session;
 		}
 	},
 	experimental: {
