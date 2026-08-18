@@ -1,3 +1,4 @@
+import '@/lib/env';
 import NextAuth from 'next-auth';
 import { User } from '@auth/user';
 import { createStorage } from 'unstorage';
