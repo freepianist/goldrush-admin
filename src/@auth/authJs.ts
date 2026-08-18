@@ -1,6 +1,5 @@
 import '@/lib/env-bootstrap';
 import NextAuth, { CredentialsSignin } from 'next-auth';
-import { User } from '@auth/user';
 import { createStorage } from 'unstorage';
 import memoryDriver from 'unstorage/drivers/memory';
 import vercelKVDriver from 'unstorage/drivers/vercel-kv';
@@ -8,9 +7,17 @@ import { UnstorageAdapter } from '@auth/unstorage-adapter';
 import type { NextAuthConfig } from 'next-auth';
 import type { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
-import { authGetDbUserByEmail, authCreateDbUser } from './authApi';
 import { prisma } from '@/lib/db';
+import { readEnv } from '@/lib/env';
 import { verifyAffiliatePassword } from '@/lib/affiliates';
+
+function credentialValue(value: unknown) {
+	if (Array.isArray(value)) {
+		return String(value[0] ?? '');
+	}
+
+	return String(value ?? '');
+}
 
 class AccountPendingError extends CredentialsSignin {
 	code = 'AccountPending';
@@ -28,17 +35,22 @@ const storage = createStorage({
 
 export const providers: Provider[] = [
 	Credentials({
+		credentials: {
+			email: { label: 'Email', type: 'email' },
+			password: { label: 'Password', type: 'password' },
+			formType: { label: 'Form type', type: 'text' }
+		},
 		async authorize(formInput) {
-			if (formInput.formType !== 'signin') {
+			const formType = credentialValue(formInput?.formType) || 'signin';
+
+			if (formType !== 'signin') {
 				return null;
 			}
 
-			const email = String(formInput.email || '')
-				.trim()
-				.toLowerCase();
-			const password = String(formInput.password || '');
-			const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-			const adminPassword = process.env.ADMIN_PASSWORD;
+			const email = credentialValue(formInput?.email).trim().toLowerCase();
+			const password = credentialValue(formInput?.password);
+			const adminEmail = readEnv('ADMIN_EMAIL')?.trim().toLowerCase();
+			const adminPassword = readEnv('ADMIN_PASSWORD')?.trim();
 
 			if (adminEmail && adminPassword && email && password && email === adminEmail && password === adminPassword) {
 				return {
@@ -48,8 +60,8 @@ export const providers: Provider[] = [
 				};
 			}
 
-			const managerEmail = process.env.AFFILIATE_MANAGER_EMAIL?.trim().toLowerCase();
-			const managerPassword = process.env.AFFILIATE_MANAGER_PASSWORD;
+			const managerEmail = readEnv('AFFILIATE_MANAGER_EMAIL')?.trim().toLowerCase();
+			const managerPassword = readEnv('AFFILIATE_MANAGER_PASSWORD')?.trim();
 
 			if (
 				managerEmail &&
@@ -194,44 +206,18 @@ const config = {
 				return session;
 			}
 
-			if (session) {
-				try {
-					/**
-					 * Get the session user from database
-					 */
-					const response = await authGetDbUserByEmail(session.user.email);
+			session.db = {
+				id: String(token.email || token.sub || 'admin'),
+				role: ['admin'],
+				displayName: String(token.name || 'WinPeak Admin'),
+				email: session.user.email,
+				photoURL: '',
+				shortcuts: ['dashboards.winpeak', 'apps.players', 'apps.ledger'],
+				settings: {},
+				loginRedirectUrl: '/dashboards/winpeak'
+			};
 
-					const userDbData = (await response.json()) as User;
-
-					session.db = userDbData;
-
-					return session;
-				} catch (error) {
-					const errorStatus = error?.status;
-
-					/** If user not found, create a new user */
-					if (errorStatus === 404) {
-						const newUserResponse = await authCreateDbUser({
-							email: session.user.email,
-							role: ['admin'],
-							displayName: session.user.name,
-							photoURL: session.user.image
-						});
-
-						const newUser = (await newUserResponse.json()) as User;
-
-						console.error('Error fetching user data:', error);
-
-						session.db = newUser;
-
-						return session;
-					}
-
-					throw error;
-				}
-			}
-
-			return null;
+			return session;
 		}
 	},
 	experimental: {

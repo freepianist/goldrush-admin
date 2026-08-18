@@ -34,7 +34,7 @@ export function normalizeSiteUrl(value?: string | null, fallback = LOCAL_FALLBAC
 	}
 }
 
-function readEnv(name: string) {
+export function readEnv(name: string) {
 	return (process.env as Record<string, string | undefined>)[name];
 }
 

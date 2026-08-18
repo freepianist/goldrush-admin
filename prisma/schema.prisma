@@ -52,6 +52,24 @@ enum PayoutStatus {
   SENT
 }
 
+enum AuthTokenType {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}
+
+model AuthToken {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      AuthTokenType
+  tokenHash String        @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime      @default(now())
+
+  @@index([userId, type])
+}
+
 enum StaffRole {
   AFFILIATE_MANAGER
 }
@@ -86,6 +104,7 @@ model User {
   referredByAffiliateId String?
   referredBy            AffiliatePartner?      @relation(fields: [referredByAffiliateId], references: [id], onDelete: SetNull)
   firstDepositAt        DateTime?
+  emailVerifiedAt       DateTime?
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   wallet                Wallet?
@@ -93,6 +112,7 @@ model User {
   reviews               GameReview[]
   reviewReplies         GameReviewReply[]
   commissions           AffiliateCommission[]
+  authTokens            AuthToken[]
 
   @@index([createdAt])
   @@index([status])
