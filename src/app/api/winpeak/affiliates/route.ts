@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { badRequest, requireAdmin, unauthorized } from '@/lib/admin-auth';
+import { badRequest, requireMarketing, unauthorized } from '@/lib/admin-auth';
 import {
 	getPartnerBook,
 	hashAffiliatePassword,
@@ -11,7 +11,7 @@ import {
 const DEAL_TYPES = new Set(['CPA', 'REVSHARE', 'HYBRID']);
 
 export async function GET() {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();
@@ -32,7 +32,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();
@@ -44,6 +44,7 @@ export async function POST(request: Request) {
 		dealType?: string;
 		cpaAmount?: number | string;
 		revSharePercent?: number | string;
+		minFtdAmount?: number | string;
 		notes?: string;
 		password?: string;
 		code?: string;
@@ -76,6 +77,7 @@ export async function POST(request: Request) {
 	const password = String(body.password || '').trim() || makeTempPassword();
 	const cpaAmount = dealType === 'REVSHARE' ? null : Number(body.cpaAmount || 0);
 	const revSharePercent = dealType === 'CPA' ? null : Number(body.revSharePercent || 0);
+	const minFtdAmount = Number(body.minFtdAmount ?? 0);
 
 	if (dealType !== 'REVSHARE' && (!Number.isFinite(cpaAmount) || (cpaAmount as number) < 0)) {
 		return badRequest('Enter a valid CPA amount');
@@ -83,6 +85,10 @@ export async function POST(request: Request) {
 
 	if (dealType !== 'CPA' && (!Number.isFinite(revSharePercent) || (revSharePercent as number) < 0)) {
 		return badRequest('Enter a valid rev share percent');
+	}
+
+	if (!Number.isFinite(minFtdAmount) || minFtdAmount < 0) {
+		return badRequest('Enter a valid FTD floor');
 	}
 
 	const partner = await prisma.affiliatePartner.create({
@@ -93,6 +99,7 @@ export async function POST(request: Request) {
 			dealType: dealType as 'CPA' | 'REVSHARE' | 'HYBRID',
 			cpaAmount,
 			revSharePercent,
+			minFtdAmount,
 			notes: String(body.notes || '').trim() || null,
 			passwordHash: await hashAffiliatePassword(password),
 			status: 'ACTIVE'

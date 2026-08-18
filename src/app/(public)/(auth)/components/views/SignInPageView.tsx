@@ -15,7 +15,7 @@ function SignInPageView() {
 				<div className="mx-auto flex w-full max-w-80 flex-col gap-8 sm:mx-0 sm:w-80">
 					<SignInPageTitle />
 
-					<AuthJsForm formType="signin" />
+					<AuthJsForm />
 
 					<Box
 						className="text-md rounded-lg px-4 py-2 leading-[1.625]"
@@ -24,8 +24,7 @@ function SignInPageView() {
 							color: 'primary.dark'
 						}}
 					>
-						Staff access only. This console manages players, wallets, games, and content for{' '}
-						<b>WinPeak</b>.
+						Staff sign in with the admin account. Partners can apply, then wait for staff approval.
 					</Box>
 				</div>
 			</Paper>

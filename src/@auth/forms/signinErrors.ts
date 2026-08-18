@@ -9,6 +9,7 @@ const signinErrors: Record<string, string> = {
 	OAuthAccountNotLinked: 'To confirm your identity, sign in with the same account you used originally.',
 	EmailSignin: 'The e-mail could not be sent.',
 	CredentialsSignin: 'Sign in failed. Check the details you provided are correct.',
+	AccountPending: 'Your account is waiting for staff approval.',
 	SessionRequired: 'Please sign in to access this page.'
 };
 

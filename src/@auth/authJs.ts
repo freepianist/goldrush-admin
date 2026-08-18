@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { CredentialsSignin } from 'next-auth';
 import { User } from '@auth/user';
 import { createStorage } from 'unstorage';
 import memoryDriver from 'unstorage/drivers/memory';
@@ -10,6 +10,10 @@ import Credentials from 'next-auth/providers/credentials';
 import { authGetDbUserByEmail, authCreateDbUser } from './authApi';
 import { prisma } from '@/lib/db';
 import { verifyAffiliatePassword } from '@/lib/affiliates';
+
+class AccountPendingError extends CredentialsSignin {
+	code = 'AccountPending';
+}
 
 const storage = createStorage({
 	driver: process.env.VERCEL
@@ -43,8 +47,48 @@ export const providers: Provider[] = [
 				};
 			}
 
+			const managerEmail = process.env.AFFILIATE_MANAGER_EMAIL?.trim().toLowerCase();
+			const managerPassword = process.env.AFFILIATE_MANAGER_PASSWORD;
+
+			if (
+				managerEmail &&
+				managerPassword &&
+				email &&
+				password &&
+				email === managerEmail &&
+				password === managerPassword
+			) {
+				return {
+					email: managerEmail,
+					name: 'Affiliate Manager',
+					role: 'affiliate_manager'
+				};
+			}
+
 			if (!email || !password) {
 				return null;
+			}
+
+			try {
+				const staff = await prisma.staffAccount.findUnique({
+					where: { email }
+				});
+
+				if (
+					staff?.passwordHash &&
+					staff.status === 'ACTIVE' &&
+					staff.role === 'AFFILIATE_MANAGER' &&
+					(await verifyAffiliatePassword(password, staff.passwordHash))
+				) {
+					return {
+						email: staff.email,
+						name: staff.name,
+						role: 'affiliate_manager',
+						staffId: staff.id
+					};
+				}
+			} catch (error) {
+				console.error('Staff login failed', error);
 			}
 
 			try {
@@ -52,16 +96,13 @@ export const providers: Provider[] = [
 					where: { email }
 				});
 
-				if (
-					partner?.passwordHash &&
-					(partner.status === 'ACTIVE' || partner.status === 'INVITED') &&
-					(await verifyAffiliatePassword(password, partner.passwordHash))
-				) {
+				if (partner?.passwordHash && (await verifyAffiliatePassword(password, partner.passwordHash))) {
 					if (partner.status === 'INVITED') {
-						await prisma.affiliatePartner.update({
-							where: { id: partner.id },
-							data: { status: 'ACTIVE' }
-						});
+						throw new AccountPendingError();
+					}
+
+					if (partner.status !== 'ACTIVE') {
+						return null;
 					}
 
 					return {
@@ -72,6 +113,10 @@ export const providers: Provider[] = [
 					};
 				}
 			} catch (error) {
+				if (error instanceof AccountPendingError) {
+					throw error;
+				}
+
 				console.error('Affiliate login failed', error);
 			}
 
@@ -98,9 +143,10 @@ const config = {
 		},
 		jwt({ token, trigger, account, user }) {
 			if (user) {
-				const signedIn = user as { role?: string; partnerId?: string; name?: string | null };
+				const signedIn = user as { role?: string; partnerId?: string; staffId?: string; name?: string | null };
 				token.role = signedIn.role || 'admin';
 				token.partnerId = signedIn.partnerId;
+				token.staffId = signedIn.staffId;
 				token.name = signedIn.name || token.name;
 			}
 
@@ -129,6 +175,20 @@ const config = {
 					shortcuts: [],
 					settings: {},
 					loginRedirectUrl: '/dashboards/partner'
+				};
+				return session;
+			}
+
+			if (token.role === 'affiliate_manager') {
+				session.db = {
+					id: String(token.staffId || token.email || 'affiliate-manager'),
+					role: ['affiliate_manager'],
+					displayName: String(token.name || 'Affiliate manager'),
+					email: session.user.email,
+					photoURL: '',
+					shortcuts: ['dashboards.marketing', 'apps.partners'],
+					settings: {},
+					loginRedirectUrl: '/dashboards/marketing'
 				};
 				return session;
 			}

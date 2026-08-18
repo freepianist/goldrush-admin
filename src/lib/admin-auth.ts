@@ -17,6 +17,17 @@ export async function requireAdmin() {
 	return session;
 }
 
+export async function requireMarketing() {
+	const session = await auth();
+	const roles = rolesOf(session?.db?.role);
+
+	if (!session?.db || (!roles.includes('admin') && !roles.includes('affiliate_manager'))) {
+		return null;
+	}
+
+	return session;
+}
+
 export async function requireAffiliate() {
 	const session = await auth();
 	const roles = rolesOf(session?.db?.role);
@@ -35,7 +46,7 @@ export async function requireAffiliate() {
 		where: { email: email.toLowerCase() }
 	});
 
-	if (!partner || (partner.status !== 'ACTIVE' && partner.status !== 'INVITED')) {
+	if (!partner || partner.status !== 'ACTIVE') {
 		return null;
 	}
 
@@ -43,10 +54,10 @@ export async function requireAffiliate() {
 }
 
 export async function requireAdminOrAffiliate() {
-	const admin = await requireAdmin();
+	const marketing = await requireMarketing();
 
-	if (admin) {
-		return { session: admin, partner: null, isAdmin: true as const };
+	if (marketing) {
+		return { session: marketing, partner: null, isAdmin: true as const };
 	}
 
 	const affiliate = await requireAffiliate();

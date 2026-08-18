@@ -1,10 +1,10 @@
 import { prisma } from '@/lib/db';
-import { requireAdmin, unauthorized } from '@/lib/admin-auth';
+import { requireMarketing, unauthorized } from '@/lib/admin-auth';
 import { getPartnerBook } from '@/lib/affiliates';
 import { money as toMoney } from '@/lib/money';
 
 export async function GET() {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();

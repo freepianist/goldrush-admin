@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { badRequest, notFound, requireAdmin, unauthorized } from '@/lib/admin-auth';
+import { badRequest, notFound, requireMarketing, unauthorized } from '@/lib/admin-auth';
 import {
 	getPartnerBook,
 	hashAffiliatePassword,
@@ -14,7 +14,7 @@ const DEAL_TYPES = new Set(['CPA', 'REVSHARE', 'HYBRID']);
 const STATUSES = new Set(['INVITED', 'ACTIVE', 'PAUSED', 'CLOSED']);
 
 export async function GET(_request: Request, context: RouteContext) {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();
@@ -57,7 +57,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();
@@ -76,6 +76,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 		dealType?: string;
 		cpaAmount?: number | string | null;
 		revSharePercent?: number | string | null;
+		minFtdAmount?: number | string | null;
 		status?: string;
 		notes?: string;
 		password?: string;
@@ -129,6 +130,16 @@ export async function PATCH(request: Request, context: RouteContext) {
 	if (body.revSharePercent !== undefined) {
 		data.revSharePercent =
 			body.revSharePercent === null || body.revSharePercent === '' ? null : Number(body.revSharePercent);
+	}
+
+	if (body.minFtdAmount !== undefined) {
+		const minFtdAmount = body.minFtdAmount === null || body.minFtdAmount === '' ? 0 : Number(body.minFtdAmount);
+
+		if (!Number.isFinite(minFtdAmount) || minFtdAmount < 0) {
+			return badRequest('Enter a valid FTD floor');
+		}
+
+		data.minFtdAmount = minFtdAmount;
 	}
 
 	if (body.code !== undefined) {

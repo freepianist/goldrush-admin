@@ -4,7 +4,7 @@ import AffiliateRouteGate from 'src/components/AffiliateRouteGate';
 
 function Layout({ children }) {
 	return (
-		<AuthGuardRedirect auth={['admin', 'affiliate']}>
+		<AuthGuardRedirect auth={['admin', 'affiliate', 'affiliate_manager']}>
 			<AffiliateRouteGate>
 				<MainLayout>{children}</MainLayout>
 			</AffiliateRouteGate>

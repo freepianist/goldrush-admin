@@ -7,8 +7,10 @@ import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
-import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import { Alert } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import Link from '@fuse/core/Link';
 import signinErrors from './signinErrors';
 
 /**
@@ -51,11 +53,13 @@ function AuthJsCredentialsSignInForm() {
 		});
 
 		if (result?.error) {
-			setError('root', { type: 'manual', message: signinErrors[result.error] });
+			const code = 'code' in result && typeof result.code === 'string' ? result.code : result.error;
+			setError('root', { type: 'manual', message: signinErrors[code] || signinErrors.CredentialsSignin });
 			return false;
 		}
 
-		window.location.href = '/dashboards/winpeak';
+		const session = await getSession();
+		window.location.href = session?.db?.loginRedirectUrl || '/dashboards/winpeak';
 		return true;
 	}
 
@@ -143,6 +147,12 @@ function AuthJsCredentialsSignInForm() {
 			>
 				Sign in
 			</Button>
+			<Typography
+				className="mt-6 text-center"
+				color="text.secondary"
+			>
+				Need a partner account? <Link to="/sign-up">Apply here</Link>
+			</Typography>
 		</form>
 	);
 }

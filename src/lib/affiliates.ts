@@ -46,6 +46,7 @@ export function serializePartner(
 		dealType: string;
 		cpaAmount: { toString(): string } | number | null;
 		revSharePercent: { toString(): string } | number | null;
+		minFtdAmount?: { toString(): string } | number | null;
 		status: string;
 		notes: string | null;
 		createdAt: Date;
@@ -61,6 +62,7 @@ export function serializePartner(
 		dealType: partner.dealType,
 		cpaAmount: money(partner.cpaAmount),
 		revSharePercent: money(partner.revSharePercent),
+		minFtdAmount: money(partner.minFtdAmount),
 		status: partner.status,
 		notes: partner.notes || '',
 		hasPassword: Boolean(partner.passwordHash),
@@ -218,6 +220,21 @@ export async function getPartnerBook(partnerId: string) {
 }
 
 export async function accrueAffiliateCpa(userId: string, depositAmount: number) {
+	const user = await prisma.user.findUnique({
+		where: { id: userId },
+		include: { referredBy: true }
+	});
+
+	if (!user || user.firstDepositAt) {
+		return;
+	}
+
+	const floor = money(user.referredBy?.minFtdAmount);
+
+	if (depositAmount < floor) {
+		return;
+	}
+
 	const marked = await prisma.user.updateMany({
 		where: { id: userId, firstDepositAt: null },
 		data: { firstDepositAt: new Date() }
@@ -227,12 +244,7 @@ export async function accrueAffiliateCpa(userId: string, depositAmount: number) 
 		return;
 	}
 
-	const user = await prisma.user.findUnique({
-		where: { id: userId },
-		include: { referredBy: true }
-	});
-
-	const partner = user?.referredBy;
+	const partner = user.referredBy;
 
 	if (!partner || partner.status !== 'ACTIVE' || partner.dealType === 'REVSHARE') {
 		return;

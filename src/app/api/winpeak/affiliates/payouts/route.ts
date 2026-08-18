@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db';
-import { badRequest, requireAdmin, requireAdminOrAffiliate, unauthorized } from '@/lib/admin-auth';
+import { badRequest, requireAdminOrAffiliate, requireMarketing, unauthorized } from '@/lib/admin-auth';
 import { serializePayout } from '@/lib/affiliates';
 
 export async function GET() {
@@ -19,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();

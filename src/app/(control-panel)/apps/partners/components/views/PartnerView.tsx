@@ -14,6 +14,7 @@ import useParams from '@fuse/hooks/useParams';
 import Link from '@fuse/core/Link';
 import { format } from 'date-fns';
 import { enqueueSnackbar } from 'notistack';
+import useUser from '@auth/useUser';
 import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
 import { useBookRevShare, usePartner, useUpdatePartner } from '@/app/(control-panel)/ops/api/hooks/useAffiliates';
 import type { AffiliateDealType, AffiliateStatus } from '@/app/(control-panel)/ops/api/types';
@@ -21,6 +22,9 @@ import { formatMoney } from '@/lib/money';
 
 function PartnerView() {
 	const { partnerId } = useParams() as { partnerId: string };
+	const { data: viewer } = useUser();
+	const roles = Array.isArray(viewer?.role) ? viewer.role : viewer?.role ? [viewer.role] : [];
+	const canOpenPlayers = roles.includes('admin');
 	const { data, isLoading, isError } = usePartner(partnerId);
 	const update = useUpdatePartner(partnerId);
 	const bookRevShare = useBookRevShare(partnerId);
@@ -29,6 +33,7 @@ function PartnerView() {
 	const [dealType, setDealType] = useState<AffiliateDealType>('HYBRID');
 	const [cpaAmount, setCpaAmount] = useState('0');
 	const [revSharePercent, setRevSharePercent] = useState('0');
+	const [minFtdAmount, setMinFtdAmount] = useState('0');
 	const [status, setStatus] = useState<AffiliateStatus>('ACTIVE');
 	const [notes, setNotes] = useState('');
 	const [password, setPassword] = useState('');
@@ -43,6 +48,7 @@ function PartnerView() {
 		setDealType(data.partner.dealType);
 		setCpaAmount(String(data.partner.cpaAmount || 0));
 		setRevSharePercent(String(data.partner.revSharePercent || 0));
+		setMinFtdAmount(String(data.partner.minFtdAmount || 0));
 		setStatus(data.partner.status);
 		setNotes(data.partner.notes || '');
 	}, [data]);
@@ -72,6 +78,7 @@ function PartnerView() {
 			dealType,
 			cpaAmount: Number(cpaAmount || 0),
 			revSharePercent: Number(revSharePercent || 0),
+			minFtdAmount: Number(minFtdAmount || 0),
 			status,
 			notes,
 			password: password || undefined
@@ -141,7 +148,7 @@ function PartnerView() {
 								onChange={(event) => setStatus(event.target.value as AffiliateStatus)}
 								fullWidth
 							>
-								<MenuItem value="INVITED">Invited</MenuItem>
+								<MenuItem value="INVITED">Pending approval</MenuItem>
 								<MenuItem value="ACTIVE">Active</MenuItem>
 								<MenuItem value="PAUSED">Paused</MenuItem>
 								<MenuItem value="CLOSED">Closed</MenuItem>
@@ -164,6 +171,14 @@ function PartnerView() {
 									fullWidth
 								/>
 							)}
+							<TextField
+								label="FTD floor"
+								type="number"
+								value={minFtdAmount}
+								onChange={(event) => setMinFtdAmount(event.target.value)}
+								helperText="Minimum first deposit to qualify. 0 means any deposit counts."
+								fullWidth
+							/>
 							<TextField
 								label="Reset portal password"
 								value={password}
@@ -209,8 +224,9 @@ function PartnerView() {
 					<Paper className="flex flex-col gap-3 rounded-xl p-6 shadow-sm">
 						<Typography className="text-lg font-semibold">Book</Typography>
 						{[
-							['Signups', String(stats.signups)],
-							['FTDs', String(stats.ftds)],
+							['Invited players', String(stats.signups)],
+							['Qualified (FTD)', String(stats.ftds)],
+							['Expected income', formatMoney((stats.bookedCpa || 0) + (stats.estimatedRevShare || 0))],
 							['Referred GGR', formatMoney(stats.ggr)],
 							['CPA booked', formatMoney(stats.bookedCpa)],
 							['RS estimate', formatMoney(stats.estimatedRevShare)],
@@ -237,13 +253,17 @@ function PartnerView() {
 									className="flex items-center justify-between gap-3"
 								>
 									<div>
-										<Typography
-											component={Link}
-											to={`/apps/players/${player.id}`}
-											className="font-medium"
-										>
-											<u>{player.displayName}</u>
-										</Typography>
+										{canOpenPlayers ? (
+											<Typography
+												component={Link}
+												to={`/apps/players/${player.id}`}
+												className="font-medium"
+											>
+												<u>{player.displayName}</u>
+											</Typography>
+										) : (
+											<Typography className="font-medium">{player.displayName}</Typography>
+										)}
 										<Typography
 											className="text-sm"
 											color="text.secondary"

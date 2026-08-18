@@ -52,6 +52,28 @@ enum PayoutStatus {
   SENT
 }
 
+enum StaffRole {
+  AFFILIATE_MANAGER
+}
+
+enum StaffStatus {
+  ACTIVE
+  DISABLED
+}
+
+model StaffAccount {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  name         String
+  role         StaffRole   @default(AFFILIATE_MANAGER)
+  status       StaffStatus @default(ACTIVE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status])
+}
+
 model User {
   id                    String                 @id @default(cuid())
   email                 String                 @unique
@@ -202,6 +224,7 @@ model AffiliatePartner {
   dealType        AffiliateDealType
   cpaAmount       Decimal?               @db.Decimal(18, 4)
   revSharePercent Decimal?               @db.Decimal(6, 2)
+  minFtdAmount    Decimal                @default(0) @db.Decimal(18, 4)
   status          AffiliateStatus        @default(INVITED)
   notes           String?
   createdAt       DateTime               @default(now())

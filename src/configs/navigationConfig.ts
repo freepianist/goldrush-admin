@@ -126,35 +126,47 @@ const navigationConfig: FuseNavItemType[] = [
 		subtitle: 'Affiliate partners and deals',
 		type: 'group',
 		icon: 'lucide:megaphone',
-		auth: ['admin'],
+		auth: ['admin', 'affiliate_manager'],
 		children: [
 			{
 				id: 'dashboards.marketing',
 				title: 'Affiliate overview',
 				type: 'item',
 				icon: 'lucide:chart-column',
-				url: '/dashboards/marketing'
+				url: '/dashboards/marketing',
+				auth: ['admin', 'affiliate_manager']
 			},
 			{
 				id: 'apps.partners',
 				title: 'Partners',
 				type: 'item',
 				icon: 'lucide:handshake',
-				url: '/apps/partners'
+				url: '/apps/partners',
+				auth: ['admin', 'affiliate_manager']
 			},
 			{
 				id: 'apps.commissions',
 				title: 'Commissions',
 				type: 'item',
 				icon: 'lucide:badge-dollar-sign',
-				url: '/apps/commissions'
+				url: '/apps/commissions',
+				auth: ['admin', 'affiliate_manager']
 			},
 			{
 				id: 'apps.payouts',
 				title: 'Payouts',
 				type: 'item',
 				icon: 'lucide:banknote',
-				url: '/apps/payouts'
+				url: '/apps/payouts',
+				auth: ['admin', 'affiliate_manager']
+			},
+			{
+				id: 'apps.managers',
+				title: 'Affiliate managers',
+				type: 'item',
+				icon: 'lucide:user-cog',
+				url: '/apps/managers',
+				auth: ['admin']
 			}
 		]
 	},
