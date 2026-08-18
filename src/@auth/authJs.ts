@@ -10,7 +10,16 @@ import type { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
 import { authGetDbUserByEmail, authCreateDbUser } from './authApi';
 import { prisma } from '@/lib/db';
+import { readEnv } from '@/lib/env';
 import { verifyAffiliatePassword } from '@/lib/affiliates';
+
+function credentialValue(value: unknown) {
+	if (Array.isArray(value)) {
+		return String(value[0] ?? '');
+	}
+
+	return String(value ?? '');
+}
 
 class AccountPendingError extends CredentialsSignin {
 	code = 'AccountPending';
@@ -28,17 +37,22 @@ const storage = createStorage({
 
 export const providers: Provider[] = [
 	Credentials({
+		credentials: {
+			email: { label: 'Email', type: 'email' },
+			password: { label: 'Password', type: 'password' },
+			formType: { label: 'Form type', type: 'text' }
+		},
 		async authorize(formInput) {
-			if (formInput.formType !== 'signin') {
+			const formType = credentialValue(formInput?.formType) || 'signin';
+
+			if (formType !== 'signin') {
 				return null;
 			}
 
-			const email = String(formInput.email || '')
-				.trim()
-				.toLowerCase();
-			const password = String(formInput.password || '');
-			const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-			const adminPassword = process.env.ADMIN_PASSWORD;
+			const email = credentialValue(formInput?.email).trim().toLowerCase();
+			const password = credentialValue(formInput?.password);
+			const adminEmail = readEnv('ADMIN_EMAIL')?.trim().toLowerCase();
+			const adminPassword = readEnv('ADMIN_PASSWORD')?.trim();
 
 			if (adminEmail && adminPassword && email && password && email === adminEmail && password === adminPassword) {
 				return {
@@ -48,8 +62,8 @@ export const providers: Provider[] = [
 				};
 			}
 
-			const managerEmail = process.env.AFFILIATE_MANAGER_EMAIL?.trim().toLowerCase();
-			const managerPassword = process.env.AFFILIATE_MANAGER_PASSWORD;
+			const managerEmail = readEnv('AFFILIATE_MANAGER_EMAIL')?.trim().toLowerCase();
+			const managerPassword = readEnv('AFFILIATE_MANAGER_PASSWORD')?.trim();
 
 			if (
 				managerEmail &&
