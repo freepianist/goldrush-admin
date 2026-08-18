@@ -7,6 +7,7 @@ import '../../public/assets/fonts/meteocons/style.css';
 import '../../public/assets/styles/prism.css';
 import { SessionProvider } from 'next-auth/react';
 import { auth } from '@auth/authJs';
+import { getSiteUrl } from '@/lib/env';
 import generateMetadata from '../utils/generateMetadata';
 import App from './App';
 
@@ -17,7 +18,7 @@ export const metadata = await generateMetadata({
 	cardImage: '/card.png',
 	robots: 'noindex, nofollow',
 	favicon: '/favicon.png',
-	url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+	url: getSiteUrl()
 });
 
 export default async function RootLayout({

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { normalizeSiteUrl } from '@/lib/env';
 
 async function generateMetadata(meta: {
 	title: string;
@@ -8,6 +9,8 @@ async function generateMetadata(meta: {
 	favicon: string;
 	url: string;
 }): Promise<Metadata> {
+	const siteUrl = normalizeSiteUrl(meta.url);
+
 	return {
 		title: meta.title,
 		description: meta.description,
@@ -18,9 +21,9 @@ async function generateMetadata(meta: {
 		publisher: 'FuseTech',
 		robots: meta.robots,
 		icons: { icon: meta.favicon },
-		metadataBase: new URL(meta.url),
+		metadataBase: new URL(siteUrl),
 		openGraph: {
-			url: meta.url,
+			url: siteUrl,
 			title: meta.title,
 			description: meta.description,
 			images: [meta.cardImage],
