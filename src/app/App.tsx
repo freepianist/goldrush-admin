@@ -78,7 +78,7 @@ function App(props: AppProps) {
 								</RootThemeProvider>
 							</I18nProvider>
 						</FuseSettingsProvider>
-						<ReactQueryDevtools initialIsOpen={false} />
+						{process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
 					</QueryClientProvider>
 				</LocalizationProvider>
 			</AppContext>

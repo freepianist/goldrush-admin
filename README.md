@@ -1,33 +1,45 @@
+# WinPeak Admin
 
-# Fuse React Versions
-## Available Versions
-- **Fuse React ViteJs** - Single Page Application (SPA)
-  - ViteJs offers a fast development experience with its instant server start and hot module replacement, making it ideal for SPAs where quick feedback and performance are crucial.
-- **Fuse React NextJs** - Server Side Rendering (SSR)
-  - NextJs excels in SSR by providing automatic static optimization and server-side rendering capabilities, which enhance SEO and initial load performance, making it perfect for dynamic web applications.
+Operations console for the WinPeak site: players, wallets, content, and affiliate partners.
 
-## GitHub Branches
+## Local setup
 
-| | **ViteJs** | **NextJs** |
-|---------|------|----------|
-| **Demo** | [`vitejs-demo`](https://github.com/withinpixels/fuse-react/tree/vitejs-demo) [🌐](https://fuse-react-vitejs-demo.fusetheme.com) | [`nextjs-demo`](https://github.com/withinpixels/fuse-react/tree/nextjs-demo) [🌐](https://fuse-react-nextjs-demo.fusetheme.com) |
-| **Skeleton** | [`vitejs-skeleton`](https://github.com/withinpixels/fuse-react/tree/vitejs-skeleton) [🌐](https://fuse-react-vitejs-skeleton.fusetheme.com) | [`nextjs-skeleton`](https://github.com/withinpixels/fuse-react/tree/nextjs-skeleton) [🌐](https://fuse-react-nextjs-skeleton.fusetheme.com) |
-| **Development Demo** | [`vitejs-demo-dev`](https://github.com/withinpixels/fuse-react/tree/vitejs-demo-dev) [🌐](https://fuse-react-vitejs-demo-dev.fusetheme.com) | [`nextjs-demo-dev`](https://github.com/withinpixels/fuse-react/tree/nextjs-demo-dev) [🌐](https://fuse-react-nextjs-demo-dev.fusetheme.com) |
-| **Development Skeleton** | [`vitejs-skeleton-dev`](https://github.com/withinpixels/fuse-react/tree/vitejs-skeleton-dev) [🌐](https://fuse-react-vitejs-skeleton-dev.fusetheme.com) | [`nextjs-skeleton-dev`](https://github.com/withinpixels/fuse-react/tree/nextjs-skeleton-dev) [🌐](https://fuse-react-nextjs-skeleton-dev.fusetheme.com) |
+1. Copy `.env.example` to `.env` and fill in values.
+2. Use the same `DATABASE_URL` as the public site.
+3. Install and run:
 
+```bash
+npm install
+npm run dev
+```
 
-## CLI Reference Links
+The app expects Node 22.12 or newer.
 
-- [ViteJs CLI Documentation](https://vitejs.dev/guide/cli.html)
+## Deploy
 
-- [NextJs CLI Documentation](https://nextjs.org/docs/api-reference/cli)
+Set these on the host. Do not commit `.env`.
 
-## License
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_BASE_URL` | Public URL of this admin app |
+| `AUTH_URL` | Same URL as the admin app |
+| `AUTH_SECRET` | Random secret for auth sessions |
+| `DATABASE_URL` | Shared PostgreSQL URL |
+| `ADMIN_EMAIL` | Staff login email |
+| `ADMIN_PASSWORD` | Staff login password |
+| `WINPEAK_SITE_URL` | Public player site origin |
+| `WINPEAK_PUBLIC_ROOT` | Optional path to the public site so uploaded blog images are written there |
 
-- [License Information](https://themeforest.net/licenses/terms/regular)
+Build and start:
 
-## More
+```bash
+npm run build
+npm start
+```
 
-- [Fuse Theme Official Website](https://fusetheme.com/)
+Production notes:
 
-
+- Keep the default branch as `master`. Use `dev` for staging if you want a preview.
+- Prisma client is generated during `npm run build`.
+- Blog image uploads write to disk. On serverless hosts that filesystem is not persistent, so set `WINPEAK_PUBLIC_ROOT` on a server with shared storage, or serve uploads from the public site.
+- Unused Fuse demo pages and the public sign-up route are blocked.

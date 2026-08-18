@@ -4,6 +4,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@/generated/prisma';
 import { findPublicSiteRoot } from '@/lib/public-site';
+import { assertServerEnv } from '@/lib/env';
 
 function readEnvFile(filePath: string) {
 	if (!fs.existsSync(filePath)) {
@@ -51,6 +52,7 @@ function ensureDatabaseUrl() {
 }
 
 ensureDatabaseUrl();
+assertServerEnv();
 
 const connectionString = process.env.DATABASE_URL;
 

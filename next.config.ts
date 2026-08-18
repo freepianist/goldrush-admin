@@ -5,6 +5,7 @@ const isTurbopack = process.env.TURBOPACK === '1';
 // Conditionally add webpack configuration only when NOT using turbopack
 const nextConfig: NextConfig = {
 	reactStrictMode: false,
+	poweredByHeader: false,
 	serverExternalPackages: ['@prisma/client', 'prisma', 'pg', '@prisma/adapter-pg', 'bcryptjs'],
 	typescript: {
 		// Dangerously allow production builds to successfully complete even if

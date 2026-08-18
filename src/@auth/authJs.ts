@@ -32,10 +32,10 @@ export const providers: Provider[] = [
 				.trim()
 				.toLowerCase();
 			const password = String(formInput.password || '');
-			const adminEmail = (process.env.ADMIN_EMAIL || 'admin@winpeak.local').toLowerCase();
-			const adminPassword = process.env.ADMIN_PASSWORD || 'WinPeakAdmin123!';
+			const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+			const adminPassword = process.env.ADMIN_PASSWORD;
 
-			if (email && password && email === adminEmail && password === adminPassword) {
+			if (adminEmail && adminPassword && email && password && email === adminEmail && password === adminPassword) {
 				return {
 					email: adminEmail,
 					name: 'WinPeak Admin',

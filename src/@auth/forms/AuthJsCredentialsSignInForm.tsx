@@ -1,6 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
 import { z } from 'zod';
 import _ from 'lodash';
 import TextField from '@mui/material/TextField';
@@ -33,24 +32,13 @@ const defaultValues = {
 };
 
 function AuthJsCredentialsSignInForm() {
-	const { control, formState, handleSubmit, setValue, setError } = useForm<FormType>({
+	const { control, formState, handleSubmit, setError } = useForm<FormType>({
 		mode: 'onChange',
 		defaultValues,
 		resolver: zodResolver(schema)
 	});
 
 	const { isValid, dirtyFields, errors } = formState;
-
-	useEffect(() => {
-		setValue('email', 'admin@winpeak.local', {
-			shouldDirty: true,
-			shouldValidate: true
-		});
-		setValue('password', 'WinPeakAdmin123!', {
-			shouldDirty: true,
-			shouldValidate: true
-		});
-	}, [setValue]);
 
 	async function onSubmit(formData: FormType) {
 		const { email, password } = formData;

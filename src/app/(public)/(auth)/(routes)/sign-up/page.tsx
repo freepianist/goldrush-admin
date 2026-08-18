@@ -1,15 +1,7 @@
-'use client';
-
-import authRoles from '@auth/authRoles';
-import AuthGuardRedirect from '@auth/AuthGuardRedirect';
-import SignUpPageView from '../../components/views/SignUpPageView';
+import { redirect } from 'next/navigation';
 
 function Page() {
-	return (
-		<AuthGuardRedirect auth={authRoles.onlyGuest}>
-			<SignUpPageView />
-		</AuthGuardRedirect>
-	);
+	redirect('/sign-in');
 }
 
 export default Page;

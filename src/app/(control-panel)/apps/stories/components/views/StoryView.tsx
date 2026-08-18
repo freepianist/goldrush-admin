@@ -21,7 +21,7 @@ const schema = z.object({
 	role: z.string().min(1, 'Role is required'),
 	content: z.string().min(8, 'Quote is required'),
 	image: z.string().optional(),
-	rating: z.coerce.number().min(1).max(5)
+	rating: z.number().min(1).max(5)
 });
 
 type FormType = z.infer<typeof schema>;
@@ -179,6 +179,7 @@ function StoryView() {
 									label="Rating"
 									type="number"
 									inputProps={{ min: 1, max: 5 }}
+									onChange={(event) => field.onChange(Number(event.target.value))}
 									fullWidth
 								/>
 							)}

@@ -7,6 +7,12 @@ const UPLOAD_FOLDERS = new Set(['blog', 'authors']);
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 
 export function findPublicSiteRoot() {
+	const configured = process.env.WINPEAK_PUBLIC_ROOT?.trim();
+
+	if (configured && fs.existsSync(configured)) {
+		return configured;
+	}
+
 	const parent = path.resolve(process.cwd(), '..');
 	const self = path.basename(process.cwd());
 
@@ -82,12 +88,6 @@ export async function savePublicUpload(file: File, folder: string) {
 
 	if (file.size > MAX_UPLOAD_BYTES) {
 		throw new Error('Image must be 5MB or smaller');
-	}
-
-	const siteRoot = findPublicSiteRoot();
-
-	if (!siteRoot) {
-		throw new Error('Could not find the public site folder to store images');
 	}
 
 	const ext = path.extname(file.name).toLowerCase() || '.jpg';
