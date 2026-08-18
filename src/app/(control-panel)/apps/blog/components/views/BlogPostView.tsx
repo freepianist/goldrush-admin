@@ -13,8 +13,9 @@ import useParams from '@fuse/hooks/useParams';
 import useNavigate from '@fuse/hooks/useNavigate';
 import Link from '@fuse/core/Link';
 import { enqueueSnackbar } from 'notistack';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useBlog, useCreateBlog, useDeleteBlog, useUpdateBlog } from '@/app/(control-panel)/goldrush/api/hooks/useBlogs';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import ImageUploadField from '@/app/(control-panel)/ops/components/ImageUploadField';
+import { useBlog, useCreateBlog, useDeleteBlog, useUpdateBlog } from '@/app/(control-panel)/ops/api/hooks/useBlogs';
 
 const schema = z.object({
 	title: z.string().min(3, 'Title is required'),
@@ -24,9 +25,7 @@ const schema = z.object({
 	author: z.string().min(1, 'Author is required'),
 	authorImage: z.string().optional(),
 	image: z.string().min(1, 'Image path is required'),
-	intro: z.string().min(1, 'Body is required'),
-	sectionsJson: z.string().optional(),
-	publishedAt: z.string().optional()
+	intro: z.string().min(1, 'Body is required')
 });
 
 type FormType = z.infer<typeof schema>;
@@ -51,9 +50,7 @@ function BlogPostView() {
 			author: 'WinPeak Desk',
 			authorImage: '/images/avatar/five.png',
 			image: '/images/blog/one.png',
-			intro: '',
-			sectionsJson: '[]',
-			publishedAt: new Date().toISOString().slice(0, 16)
+			intro: ''
 		}
 	});
 
@@ -67,9 +64,7 @@ function BlogPostView() {
 				author: post.author,
 				authorImage: post.authorImage,
 				image: post.image,
-				intro: post.intro,
-				sectionsJson: post.sectionsJson || '[]',
-				publishedAt: post.publishedAt.slice(0, 16)
+				intro: post.intro
 			});
 		}
 	}, [post, reset]);
@@ -114,7 +109,7 @@ function BlogPostView() {
 			header={
 				<AdminPageHeader
 					title={isNew ? 'New blog post' : post?.title || 'Blog post'}
-					subtitle="This content is shown on the public Goldrush blog"
+					subtitle="This content is shown on the public WinPeak blog"
 					action={
 						<div className="flex gap-2">
 							{!isNew && (
@@ -196,52 +191,43 @@ function BlogPostView() {
 							/>
 						)}
 					/>
-					<div className="grid gap-4 sm:grid-cols-2">
-						<Controller
-							name="author"
-							control={control}
-							render={({ field }) => (
-								<TextField
-									{...field}
-									label="Author"
-									fullWidth
-								/>
-							)}
-						/>
-						<Controller
-							name="publishedAt"
-							control={control}
-							render={({ field }) => (
-								<TextField
-									{...field}
-									label="Published at"
-									type="datetime-local"
-									fullWidth
-									InputLabelProps={{ shrink: true }}
-								/>
-							)}
-						/>
-					</div>
-					<div className="grid gap-4 sm:grid-cols-2">
+					<Controller
+						name="author"
+						control={control}
+						render={({ field }) => (
+							<TextField
+								{...field}
+								label="Author"
+								fullWidth
+							/>
+						)}
+					/>
+					<div className="grid gap-6 sm:grid-cols-2">
 						<Controller
 							name="image"
 							control={control}
-							render={({ field }) => (
-								<TextField
-									{...field}
-									label="Cover image path"
-									fullWidth
+							render={({ field, fieldState }) => (
+								<ImageUploadField
+									label="Cover image"
+									value={field.value}
+									folder="blog"
+									variant="cover"
+									error={fieldState.error?.message}
+									onChange={field.onChange}
 								/>
 							)}
 						/>
 						<Controller
 							name="authorImage"
 							control={control}
-							render={({ field }) => (
-								<TextField
-									{...field}
-									label="Author image path"
-									fullWidth
+							render={({ field, fieldState }) => (
+								<ImageUploadField
+									label="Author image"
+									value={field.value}
+									folder="authors"
+									variant="avatar"
+									error={fieldState.error?.message}
+									onChange={field.onChange}
 								/>
 							)}
 						/>
@@ -257,20 +243,6 @@ function BlogPostView() {
 								error={!!fieldState.error}
 								multiline
 								minRows={8}
-								fullWidth
-							/>
-						)}
-					/>
-					<Controller
-						name="sectionsJson"
-						control={control}
-						render={({ field }) => (
-							<TextField
-								{...field}
-								label="Extra sections JSON"
-								helperText='Optional: [{"heading":"...","paragraphs":["..."]}]'
-								multiline
-								minRows={4}
 								fullWidth
 							/>
 						)}

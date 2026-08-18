@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import { requireAdmin, unauthorized } from '@/lib/admin-auth';
 import { serializeLedger } from '@/lib/serializers';
-import type { LedgerKind } from '@prisma/client';
+import type { LedgerKind } from '@/generated/prisma';
 
 export async function GET(request: Request) {
 	const session = await requireAdmin();

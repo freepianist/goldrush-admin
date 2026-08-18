@@ -13,8 +13,8 @@ import useParams from '@fuse/hooks/useParams';
 import useNavigate from '@fuse/hooks/useNavigate';
 import Link from '@fuse/core/Link';
 import { enqueueSnackbar } from 'notistack';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useCreateStory, useDeleteStory, useStory, useUpdateStory } from '@/app/(control-panel)/goldrush/api/hooks/useContent';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useCreateStory, useDeleteStory, useStory, useUpdateStory } from '@/app/(control-panel)/ops/api/hooks/useContent';
 
 const schema = z.object({
 	authorName: z.string().min(1, 'Author is required'),
@@ -99,7 +99,7 @@ function StoryView() {
 			header={
 				<AdminPageHeader
 					title={isNew ? 'New success story' : story?.authorName || 'Story'}
-					subtitle="Shown in testimonials on Goldrush"
+					subtitle="Shown in testimonials on WinPeak"
 					action={
 						<div className="flex gap-2">
 							{!isNew && (

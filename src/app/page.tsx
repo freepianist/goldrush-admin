@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 
 function MainPage() {
-	redirect(`/dashboards/goldrush`);
+	redirect(`/dashboards/winpeak`);
 	return null;
 }
 

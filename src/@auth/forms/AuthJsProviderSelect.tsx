@@ -1,6 +1,6 @@
 import { Box, Button, lighten, Typography } from '@mui/material';
 import { signIn } from 'next-auth/react';
-import { authJsProviderMap } from '@auth/authJs';
+import { authJsProviderMap } from '@auth/authJsProviders';
 
 const providerLogoPath = 'https://authjs.dev/img/providers';
 

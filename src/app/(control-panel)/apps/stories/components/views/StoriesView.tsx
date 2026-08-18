@@ -13,9 +13,9 @@ import NavLinkAdapter from '@fuse/core/NavLinkAdapter';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { format } from 'date-fns';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useDeleteStory, useStories } from '@/app/(control-panel)/goldrush/api/hooks/useContent';
-import type { SuccessStory } from '@/app/(control-panel)/goldrush/api/types';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useDeleteStory, useStories } from '@/app/(control-panel)/ops/api/hooks/useContent';
+import type { SuccessStory } from '@/app/(control-panel)/ops/api/types';
 
 const Root = styled(FusePageCarded)(() => ({
 	'& .container': {

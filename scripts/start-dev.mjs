@@ -6,7 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const child = spawn(
 	process.execPath,
-	['node_modules/next/dist/bin/next', 'dev', '--port', '3001', '--hostname', '127.0.0.1', '--webpack'],
+	['node_modules/next/dist/bin/next', 'dev', '--webpack'],
 	{
 		cwd: root,
 		detached: true,
@@ -16,4 +16,4 @@ const child = spawn(
 );
 
 child.unref();
-console.log(`Goldrush admin started (pid ${child.pid}) at http://127.0.0.1:3001`);
+console.log(`WinPeak admin started (pid ${child.pid})`);

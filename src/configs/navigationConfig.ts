@@ -12,16 +12,18 @@ const navigationConfig: FuseNavItemType[] = [
 	{
 		id: 'dashboards',
 		title: 'Dashboards',
-		subtitle: 'Live Goldrush operations',
+		subtitle: 'Live WinPeak operations',
 		type: 'group',
 		icon: 'lucide:layout-dashboard',
+		auth: ['admin'],
 		children: [
 			{
-				id: 'dashboards.goldrush',
+				id: 'dashboards.winpeak',
 				title: 'Overview',
 				type: 'item',
 				icon: 'lucide:gauge',
-				url: '/dashboards/goldrush'
+				url: '/dashboards/winpeak',
+				auth: ['admin']
 			}
 		]
 	},
@@ -31,6 +33,7 @@ const navigationConfig: FuseNavItemType[] = [
 		subtitle: 'Players, money, and games',
 		type: 'group',
 		icon: 'lucide:briefcase',
+		auth: ['admin'],
 		children: [
 			{
 				id: 'apps.players',
@@ -58,9 +61,10 @@ const navigationConfig: FuseNavItemType[] = [
 	{
 		id: 'content',
 		title: 'Content',
-		subtitle: 'What players see on Goldrush',
+		subtitle: 'What players see on WinPeak',
 		type: 'group',
 		icon: 'lucide:newspaper',
+		auth: ['admin'],
 		children: [
 			{
 				id: 'apps.blog',
@@ -98,6 +102,7 @@ const navigationConfig: FuseNavItemType[] = [
 		subtitle: 'Inbox and mailing list',
 		type: 'group',
 		icon: 'lucide:mail',
+		auth: ['admin'],
 		children: [
 			{
 				id: 'apps.inbox',
@@ -112,6 +117,75 @@ const navigationConfig: FuseNavItemType[] = [
 				type: 'item',
 				icon: 'lucide:mail-plus',
 				url: '/apps/subscribers'
+			}
+		]
+	},
+	{
+		id: 'marketing',
+		title: 'Marketing',
+		subtitle: 'Affiliate partners and deals',
+		type: 'group',
+		icon: 'lucide:megaphone',
+		auth: ['admin'],
+		children: [
+			{
+				id: 'dashboards.marketing',
+				title: 'Affiliate overview',
+				type: 'item',
+				icon: 'lucide:chart-column',
+				url: '/dashboards/marketing'
+			},
+			{
+				id: 'apps.partners',
+				title: 'Partners',
+				type: 'item',
+				icon: 'lucide:handshake',
+				url: '/apps/partners'
+			},
+			{
+				id: 'apps.commissions',
+				title: 'Commissions',
+				type: 'item',
+				icon: 'lucide:badge-dollar-sign',
+				url: '/apps/commissions'
+			},
+			{
+				id: 'apps.payouts',
+				title: 'Payouts',
+				type: 'item',
+				icon: 'lucide:banknote',
+				url: '/apps/payouts'
+			}
+		]
+	},
+	{
+		id: 'partner-portal',
+		title: 'Partner portal',
+		subtitle: 'Your tracking and earnings',
+		type: 'group',
+		icon: 'lucide:link',
+		auth: ['affiliate'],
+		children: [
+			{
+				id: 'dashboards.partner',
+				title: 'My dashboard',
+				type: 'item',
+				icon: 'lucide:gauge',
+				url: '/dashboards/partner'
+			},
+			{
+				id: 'apps.partner.players',
+				title: 'My players',
+				type: 'item',
+				icon: 'lucide:users',
+				url: '/apps/partner/players'
+			},
+			{
+				id: 'apps.partner.earnings',
+				title: 'My earnings',
+				type: 'item',
+				icon: 'lucide:wallet',
+				url: '/apps/partner/earnings'
 			}
 		]
 	}

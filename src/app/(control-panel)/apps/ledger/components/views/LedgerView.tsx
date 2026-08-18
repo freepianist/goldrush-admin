@@ -10,9 +10,9 @@ import Typography from '@mui/material/Typography';
 import Link from '@fuse/core/Link';
 import { format } from 'date-fns';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useLedger } from '@/app/(control-panel)/goldrush/api/hooks/useLedger';
-import type { LedgerItem } from '@/app/(control-panel)/goldrush/api/types';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useLedger } from '@/app/(control-panel)/ops/api/hooks/useLedger';
+import type { LedgerItem } from '@/app/(control-panel)/ops/api/types';
 import { formatMoney } from '@/lib/money';
 
 const Root = styled(FusePageCarded)(() => ({

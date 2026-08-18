@@ -1,6 +1,7 @@
-// Keep in sync with goldrush/prisma/schema.prisma
+// Keep in sync with the public site prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -21,24 +22,59 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum AffiliateDealType {
+  CPA
+  REVSHARE
+  HYBRID
+}
+
+enum AffiliateStatus {
+  INVITED
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+enum CommissionKind {
+  CPA
+  REVSHARE
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  VOID
+}
+
+enum PayoutStatus {
+  PENDING
+  SENT
+}
+
 model User {
-  id                String            @id @default(cuid())
-  email             String            @unique
-  passwordHash      String
-  firstName         String
-  lastName          String
-  scorpioPlayerCode Int?
-  status            UserStatus        @default(ACTIVE)
-  notes             String?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  wallet            Wallet?
-  ledger            LedgerEntry[]
-  reviews           GameReview[]
-  reviewReplies     GameReviewReply[]
+  id                    String                 @id @default(cuid())
+  email                 String                 @unique
+  passwordHash          String
+  firstName             String
+  lastName              String
+  scorpioPlayerCode     Int?
+  status                UserStatus             @default(ACTIVE)
+  notes                 String?
+  referredByAffiliateId String?
+  referredBy            AffiliatePartner?      @relation(fields: [referredByAffiliateId], references: [id], onDelete: SetNull)
+  firstDepositAt        DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  wallet                Wallet?
+  ledger                LedgerEntry[]
+  reviews               GameReview[]
+  reviewReplies         GameReviewReply[]
+  commissions           AffiliateCommission[]
 
   @@index([createdAt])
   @@index([status])
+  @@index([referredByAffiliateId])
 }
 
 model Wallet {
@@ -155,4 +191,53 @@ model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+model AffiliatePartner {
+  id              String                 @id @default(cuid())
+  email           String                 @unique
+  name            String
+  passwordHash    String?
+  code            String                 @unique
+  dealType        AffiliateDealType
+  cpaAmount       Decimal?               @db.Decimal(18, 4)
+  revSharePercent Decimal?               @db.Decimal(6, 2)
+  status          AffiliateStatus        @default(INVITED)
+  notes           String?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  players         User[]
+  commissions     AffiliateCommission[]
+  payouts         AffiliatePayout[]
+
+  @@index([status])
+  @@index([code])
+}
+
+model AffiliateCommission {
+  id          String           @id @default(cuid())
+  partnerId   String
+  partner     AffiliatePartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  kind        CommissionKind
+  amount      Decimal          @db.Decimal(18, 4)
+  basisAmount Decimal          @default(0) @db.Decimal(18, 4)
+  status      CommissionStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  @@index([partnerId, createdAt(sort: Desc)])
+  @@index([status])
+}
+
+model AffiliatePayout {
+  id        String           @id @default(cuid())
+  partnerId String
+  partner   AffiliatePartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  amount    Decimal          @db.Decimal(18, 4)
+  status    PayoutStatus     @default(PENDING)
+  note      String?
+  createdAt DateTime         @default(now())
+
+  @@index([partnerId, createdAt(sort: Desc)])
 }

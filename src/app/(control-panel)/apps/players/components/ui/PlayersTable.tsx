@@ -8,8 +8,8 @@ import { Chip, Paper } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Link from '@fuse/core/Link';
 import { format } from 'date-fns';
-import { usePlayers } from '@/app/(control-panel)/goldrush/api/hooks/usePlayers';
-import type { Player } from '@/app/(control-panel)/goldrush/api/types';
+import { usePlayers } from '@/app/(control-panel)/ops/api/hooks/usePlayers';
+import type { Player } from '@/app/(control-panel)/ops/api/types';
 import { formatMoney } from '@/lib/money';
 
 function PlayersTable() {

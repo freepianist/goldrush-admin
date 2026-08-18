@@ -68,6 +68,25 @@ export async function GET() {
 		})
 	]);
 
+	let affiliatePartners = 0;
+	let affiliateFtds = 0;
+	let pendingAffiliatePay: { _sum: { amount: unknown } } = { _sum: { amount: 0 } };
+
+	try {
+		[affiliatePartners, affiliateFtds, pendingAffiliatePay] = await Promise.all([
+			prisma.affiliatePartner.count(),
+			prisma.user.count({
+				where: { referredByAffiliateId: { not: null }, firstDepositAt: { not: null } }
+			}),
+			prisma.affiliateCommission.aggregate({
+				where: { status: { in: ['PENDING', 'APPROVED'] } },
+				_sum: { amount: true }
+			})
+		]);
+	} catch (error) {
+		console.error('Affiliate stats unavailable', error);
+	}
+
 	const totals: Record<string, { amount: number; count: number }> = {};
 
 	for (const row of ledgerByKind) {
@@ -142,7 +161,12 @@ export async function GET() {
 		},
 		series: Array.from(dayMap.entries()).map(([date, values]) => ({ date, ...values })),
 		recentUsers: recentUsers.map(serializeUser),
-		recentLedger: recentLedger.map(serializeLedger)
+		recentLedger: recentLedger.map(serializeLedger),
+		affiliates: {
+			partners: affiliatePartners,
+			ftds: affiliateFtds,
+			pending: money(pendingAffiliatePay._sum.amount)
+		}
 	});
 	} catch (error) {
 		console.error('WinPeak stats failed', error);

@@ -1,13 +1,14 @@
-import type { Prisma } from '@prisma/client';
+import type { Prisma } from '@/generated/prisma';
 import { prisma } from '@/lib/db';
 import { money } from '@/lib/money';
+import { accrueAffiliateCpa } from '@/lib/affiliates';
 
 export async function applyDeposit(userId: string, amount: number) {
 	if (amount <= 0) {
 		throw new Error('Deposit amount must be greater than 0');
 	}
 
-	return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+	const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 		const wallet = await tx.wallet.findUnique({ where: { userId } });
 
 		if (!wallet) {
@@ -30,6 +31,14 @@ export async function applyDeposit(userId: string, amount: number) {
 
 		return { balance: next, currency: wallet.currency };
 	});
+
+	try {
+		await accrueAffiliateCpa(userId, amount);
+	} catch (error) {
+		console.error('Affiliate CPA accrual failed', error);
+	}
+
+	return result;
 }
 
 export async function applyWithdraw(userId: string, amount: number) {

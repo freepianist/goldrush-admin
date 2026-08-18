@@ -61,12 +61,10 @@ export async function POST(request: Request) {
 		slug?: string;
 		excerpt?: string;
 		intro?: string;
-		sectionsJson?: string;
 		image?: string;
 		tag?: string;
 		author?: string;
 		authorImage?: string;
-		publishedAt?: string;
 	};
 
 	const title = body.title?.trim();
@@ -92,12 +90,12 @@ export async function POST(request: Request) {
 			title,
 			slug,
 			excerpt: body.excerpt?.trim() || '',
-			body: encodeBlogBody(body.intro || '', body.sectionsJson),
+			body: encodeBlogBody(body.intro || ''),
 			image: body.image?.trim() || '/images/blog/one.png',
 			tag: body.tag?.trim() || 'News',
 			author: body.author?.trim() || 'WinPeak Desk',
 			authorImage: body.authorImage?.trim() || '/images/avatar/five.png',
-			publishedAt: body.publishedAt ? new Date(body.publishedAt) : new Date()
+			publishedAt: new Date()
 		},
 		include: { _count: { select: { comments: true } } }
 	});

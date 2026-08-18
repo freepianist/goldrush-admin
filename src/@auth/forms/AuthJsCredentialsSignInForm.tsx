@@ -42,11 +42,11 @@ function AuthJsCredentialsSignInForm() {
 	const { isValid, dirtyFields, errors } = formState;
 
 	useEffect(() => {
-		setValue('email', 'admin@goldrush.local', {
+		setValue('email', 'admin@winpeak.local', {
 			shouldDirty: true,
 			shouldValidate: true
 		});
-		setValue('password', 'GoldrushAdmin123!', {
+		setValue('password', 'WinPeakAdmin123!', {
 			shouldDirty: true,
 			shouldValidate: true
 		});
@@ -67,7 +67,7 @@ function AuthJsCredentialsSignInForm() {
 			return false;
 		}
 
-		window.location.href = '/dashboards/goldrush';
+		window.location.href = '/dashboards/winpeak';
 		return true;
 	}
 

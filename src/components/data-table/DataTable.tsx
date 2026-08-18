@@ -34,7 +34,7 @@ function DataTable<TData>(props: MaterialReactTableProps<TData>) {
 		() =>
 			_.defaults(rest, {
 				initialState: {
-					density: 'compact',
+					density: 'comfortable',
 					showColumnFilters: false,
 					showGlobalFilter: true,
 					columnPinning: {
@@ -55,7 +55,7 @@ function DataTable<TData>(props: MaterialReactTableProps<TData>) {
 				enableRowActions: true,
 				enableRowSelection: true,
 				muiBottomToolbarProps: {
-					className: 'flex items-center min-h-14 h-14'
+					className: 'flex items-center min-h-16 h-16 px-4'
 				},
 				muiTablePaperProps: {
 					elevation: 0,
@@ -78,9 +78,9 @@ function DataTable<TData>(props: MaterialReactTableProps<TData>) {
 				},
 				muiSearchTextFieldProps: {
 					placeholder: 'Search',
-					sx: { minWidth: '300px' },
+					sx: { minWidth: '280px' },
 					variant: 'outlined',
-					size: 'small'
+					size: 'medium'
 				},
 				muiFilterTextFieldProps: {
 					variant: 'outlined',
@@ -106,30 +106,30 @@ function DataTable<TData>(props: MaterialReactTableProps<TData>) {
 				},
 				muiTableBodyRowProps: ({ row, table }) => {
 					const { density } = table.getState();
-
-					if (density === 'compact') {
-						return {
-							sx: {
-								backgroundColor: 'initial',
-								opacity: 1,
-								boxShadow: 'none',
-								height: row.getIsPinned() ? `${37}px` : undefined
-							}
-						};
-					}
+					const pinnedHeight = density === 'compact' ? 48 : density === 'comfortable' ? 64 : 76;
 
 					return {
 						sx: {
 							backgroundColor: 'initial',
 							opacity: 1,
 							boxShadow: 'none',
-							// Set a fixed height for pinned rows
-							height: row.getIsPinned() ? `${density === 'comfortable' ? 53 : 69}px` : undefined
+							height: row.getIsPinned() ? pinnedHeight : undefined,
+							'&:hover td': {
+								backgroundColor: (theme: Theme) => theme.vars.palette.action.hover
+							}
 						}
 					};
 				},
 				muiTableHeadCellProps: ({ column }) => ({
 					sx: {
+						py: 2,
+						px: 2.5,
+						fontSize: '0.75rem',
+						fontWeight: 700,
+						letterSpacing: '0.04em',
+						textTransform: 'uppercase',
+						color: (theme: Theme) => theme.vars.palette.text.secondary,
+						borderBottomWidth: 1,
 						'& .Mui-TableHeadCell-Content-Labels': {
 							flex: 1,
 							justifyContent: 'space-between'
@@ -149,6 +149,16 @@ function DataTable<TData>(props: MaterialReactTableProps<TData>) {
 							column.getIsPinned() ? theme.vars.palette.background.paper : 'inherit'
 					}
 				}),
+				muiTableBodyCellProps: {
+					sx: {
+						py: 2.25,
+						px: 2.5,
+						fontSize: '0.875rem',
+						lineHeight: 1.5,
+						verticalAlign: 'middle',
+						borderBottomWidth: 1
+					}
+				},
 				mrtTheme: (theme) => ({
 					baseBackgroundColor: theme.palette.background.paper,
 					menuBackgroundColor: theme.palette.background.paper,

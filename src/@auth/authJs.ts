@@ -8,6 +8,8 @@ import type { NextAuthConfig } from 'next-auth';
 import type { Provider } from 'next-auth/providers';
 import Credentials from 'next-auth/providers/credentials';
 import { authGetDbUserByEmail, authCreateDbUser } from './authApi';
+import { prisma } from '@/lib/db';
+import { verifyAffiliatePassword } from '@/lib/affiliates';
 
 const storage = createStorage({
 	driver: process.env.VERCEL
@@ -30,23 +32,56 @@ export const providers: Provider[] = [
 				.trim()
 				.toLowerCase();
 			const password = String(formInput.password || '');
-			const adminEmail = (process.env.ADMIN_EMAIL || 'admin@goldrush.local').toLowerCase();
-			const adminPassword = process.env.ADMIN_PASSWORD || 'GoldrushAdmin123!';
+			const adminEmail = (process.env.ADMIN_EMAIL || 'admin@winpeak.local').toLowerCase();
+			const adminPassword = process.env.ADMIN_PASSWORD || 'WinPeakAdmin123!';
 
-			if (!email || !password || email !== adminEmail || password !== adminPassword) {
+			if (email && password && email === adminEmail && password === adminPassword) {
+				return {
+					email: adminEmail,
+					name: 'WinPeak Admin',
+					role: 'admin'
+				};
+			}
+
+			if (!email || !password) {
 				return null;
 			}
 
-			return {
-				email: adminEmail,
-				name: 'Goldrush Admin'
-			};
+			try {
+				const partner = await prisma.affiliatePartner.findUnique({
+					where: { email }
+				});
+
+				if (
+					partner?.passwordHash &&
+					(partner.status === 'ACTIVE' || partner.status === 'INVITED') &&
+					(await verifyAffiliatePassword(password, partner.passwordHash))
+				) {
+					if (partner.status === 'INVITED') {
+						await prisma.affiliatePartner.update({
+							where: { id: partner.id },
+							data: { status: 'ACTIVE' }
+						});
+					}
+
+					return {
+						email: partner.email,
+						name: partner.name,
+						role: 'affiliate',
+						partnerId: partner.id
+					};
+				}
+			} catch (error) {
+				console.error('Affiliate login failed', error);
+			}
+
+			return null;
 		}
 	})
 ];
 
 const config = {
-	theme: { logo: '/assets/images/logo/goldrush.svg' },
+	theme: { logo: '/assets/images/logo/winpeak-logo.png' },
 	adapter: UnstorageAdapter(storage),
 	pages: {
 		signIn: '/sign-in'
@@ -62,6 +97,13 @@ const config = {
 			return true;
 		},
 		jwt({ token, trigger, account, user }) {
+			if (user) {
+				const signedIn = user as { role?: string; partnerId?: string; name?: string | null };
+				token.role = signedIn.role || 'admin';
+				token.partnerId = signedIn.partnerId;
+				token.name = signedIn.name || token.name;
+			}
+
 			if (trigger === 'update') {
 				token.name = user.name;
 			}
@@ -75,6 +117,20 @@ const config = {
 		async session({ session, token }) {
 			if (token.accessToken && typeof token.accessToken === 'string') {
 				session.accessToken = token.accessToken;
+			}
+
+			if (token.role === 'affiliate') {
+				session.db = {
+					id: String(token.partnerId || ''),
+					role: ['affiliate'],
+					displayName: String(token.name || 'Partner'),
+					email: session.user.email,
+					photoURL: '',
+					shortcuts: [],
+					settings: {},
+					loginRedirectUrl: '/dashboards/partner'
+				};
+				return session;
 			}
 
 			if (session) {
@@ -127,28 +183,7 @@ const config = {
 	debug: process.env.NODE_ENV !== 'production'
 } satisfies NextAuthConfig;
 
-export type AuthJsProvider = {
-	id: string;
-	name: string;
-	style?: {
-		text?: string;
-		bg?: string;
-	};
-};
-
-export const authJsProviderMap: AuthJsProvider[] = providers
-	.map((provider) => {
-		const providerData = typeof provider === 'function' ? provider() : provider;
-
-		return {
-			id: providerData.id,
-			name: providerData.name,
-			style: {
-				text: (providerData as { style?: { text: string } }).style?.text,
-				bg: (providerData as { style?: { bg: string } }).style?.bg
-			}
-		};
-	})
-	.filter((provider) => provider.id !== 'credentials');
+export type { AuthJsProvider } from './authJsProviders';
+export { authJsProviderMap } from './authJsProviders';
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);

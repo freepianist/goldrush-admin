@@ -10,9 +10,9 @@ import { ListItemIcon, MenuItem, Paper, Typography } from '@mui/material';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { format } from 'date-fns';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useDeleteReply, useDeleteReviews, useReviews } from '@/app/(control-panel)/goldrush/api/hooks/useContent';
-import type { GameReview } from '@/app/(control-panel)/goldrush/api/types';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useDeleteReply, useDeleteReviews, useReviews } from '@/app/(control-panel)/ops/api/hooks/useContent';
+import type { GameReview } from '@/app/(control-panel)/ops/api/types';
 
 const Root = styled(FusePageCarded)(() => ({
 	'& .container': {

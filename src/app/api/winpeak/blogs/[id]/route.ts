@@ -75,12 +75,10 @@ export async function PUT(request: Request, context: RouteContext) {
 		slug?: string;
 		excerpt?: string;
 		intro?: string;
-		sectionsJson?: string;
 		image?: string;
 		tag?: string;
 		author?: string;
 		authorImage?: string;
-		publishedAt?: string;
 	};
 
 	const title = body.title?.trim();
@@ -105,12 +103,11 @@ export async function PUT(request: Request, context: RouteContext) {
 			title,
 			slug,
 			excerpt: body.excerpt?.trim() || '',
-			body: encodeBlogBody(body.intro || '', body.sectionsJson),
+			body: encodeBlogBody(body.intro || '', JSON.stringify(parseBlogBody(existing.body).sections)),
 			image: body.image?.trim() || existing.image,
 			tag: body.tag?.trim() || existing.tag,
 			author: body.author?.trim() || existing.author,
-			authorImage: body.authorImage?.trim() || existing.authorImage,
-			publishedAt: body.publishedAt ? new Date(body.publishedAt) : existing.publishedAt
+			authorImage: body.authorImage?.trim() || existing.authorImage
 		},
 		include: { _count: { select: { comments: true } } }
 	});

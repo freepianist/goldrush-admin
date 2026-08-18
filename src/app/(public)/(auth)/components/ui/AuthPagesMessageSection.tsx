@@ -72,12 +72,12 @@ function AuthPagesMessageSection() {
 
 			<div className="relative z-10 w-full max-w-4xl">
 				<div className="text-7xl leading-none font-bold text-gray-100">
-					<div>Goldrush</div>
+					<div>WinPeak</div>
 					<div>control room</div>
 				</div>
 				<div className="mt-6 text-lg leading-6 tracking-tight text-gray-400">
 					Manage players, wallets, game performance, blog posts, reviews, and inbound messages for the
-					Goldrush site.
+					WinPeak site.
 				</div>
 				<div className="mt-8 flex items-center">
 					<div className="font-medium tracking-tight text-gray-400">

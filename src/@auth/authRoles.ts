@@ -18,6 +18,16 @@ const authRoles = {
 	user: ['admin', 'staff', 'user'],
 
 	/**
+	 * Affiliate partners can only see their own marketing portal.
+	 */
+	affiliate: ['affiliate'],
+
+	/**
+	 * Staff plus invited partners.
+	 */
+	partner: ['admin', 'affiliate'],
+
+	/**
 	 * The onlyGuest role grants access to unauthenticated users.
 	 */
 	onlyGuest: []

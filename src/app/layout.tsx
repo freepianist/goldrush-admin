@@ -12,12 +12,12 @@ import App from './App';
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const metadata = await generateMetadata({
-	title: 'Goldrush Admin',
-	description: 'Operations console for the Goldrush casino site',
+	title: 'WinPeak Admin',
+	description: 'Operations console for the WinPeak casino site',
 	cardImage: '/card.png',
 	robots: 'noindex, nofollow',
-	favicon: '/favicon.ico',
-	url: 'http://localhost:3001'
+	favicon: '/favicon.png',
+	url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 });
 
 export default async function RootLayout({
@@ -50,7 +50,7 @@ export default async function RootLayout({
 				/>
 				<link
 					rel="shortcut icon"
-					href="/favicon.ico"
+					href="/favicon.png"
 				/>
 				<noscript id="emotion-insertion-point" />
 			</head>

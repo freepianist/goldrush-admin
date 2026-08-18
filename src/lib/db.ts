@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/generated/prisma';
+import { findPublicSiteRoot } from '@/lib/public-site';
 
 function readEnvFile(filePath: string) {
 	if (!fs.existsSync(filePath)) {
@@ -23,9 +24,7 @@ function readEnvFile(filePath: string) {
 		}
 
 		const existing = process.env[key];
-		const isPlaceholder =
-			!existing ||
-			(key === 'DATABASE_URL' && /postgresql:\/\/localhost:5432\/goldrush/.test(existing));
+		const isPlaceholder = !existing || (key === 'DATABASE_URL' && /postgresql:\/\/localhost:5432\//.test(existing));
 
 		if (isPlaceholder) {
 			process.env[key] = value;
@@ -35,15 +34,20 @@ function readEnvFile(filePath: string) {
 
 function ensureDatabaseUrl() {
 	const current = process.env.DATABASE_URL || '';
-	const isPlaceholder = !current || /postgresql:\/\/localhost:5432\/goldrush/.test(current);
+	const isPlaceholder = !current || /postgresql:\/\/localhost:5432\//.test(current);
 
 	if (!isPlaceholder) {
 		return;
 	}
 
-	const goldrushRoot = path.resolve(process.cwd(), '../goldrush');
-	readEnvFile(path.join(goldrushRoot, '.env'));
-	readEnvFile(path.join(goldrushRoot, '.env.local'));
+	const siteRoot = findPublicSiteRoot();
+
+	if (!siteRoot) {
+		return;
+	}
+
+	readEnvFile(path.join(siteRoot, '.env'));
+	readEnvFile(path.join(siteRoot, '.env.local'));
 }
 
 ensureDatabaseUrl();
@@ -51,13 +55,13 @@ ensureDatabaseUrl();
 const connectionString = process.env.DATABASE_URL;
 
 const globalForPrisma = globalThis as unknown as {
-	prisma?: PrismaClient;
+	sitePrisma?: PrismaClient;
 	pool?: Pool;
 };
 
 function createPrisma() {
 	if (!connectionString) {
-		throw new Error('DATABASE_URL is not set. Copy it from goldrush/.env into goldrush-admin/.env');
+		throw new Error('DATABASE_URL is not set. Copy it from the public site .env into this admin .env');
 	}
 
 	const ssl =
@@ -84,8 +88,8 @@ function createPrisma() {
 	});
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrisma();
+export const prisma = globalForPrisma.sitePrisma ?? createPrisma();
 
 if (process.env.NODE_ENV !== 'production') {
-	globalForPrisma.prisma = prisma;
+	globalForPrisma.sitePrisma = prisma;
 }

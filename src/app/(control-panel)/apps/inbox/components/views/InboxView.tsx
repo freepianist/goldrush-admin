@@ -9,9 +9,9 @@ import { Chip, ListItemIcon, MenuItem, Paper } from '@mui/material';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { format } from 'date-fns';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useDeleteInbox, useInbox, useUpdateInbox } from '@/app/(control-panel)/goldrush/api/hooks/useContent';
-import type { InboxMessage } from '@/app/(control-panel)/goldrush/api/types';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useDeleteInbox, useInbox, useUpdateInbox } from '@/app/(control-panel)/ops/api/hooks/useContent';
+import type { InboxMessage } from '@/app/(control-panel)/ops/api/types';
 
 const Root = styled(FusePageCarded)(() => ({
 	'& .container': {
@@ -60,7 +60,7 @@ function InboxView() {
 			header={
 				<AdminPageHeader
 					title="Inbox"
-					subtitle="Contact form messages from Goldrush"
+					subtitle="Contact form messages from WinPeak"
 				/>
 			}
 			content={

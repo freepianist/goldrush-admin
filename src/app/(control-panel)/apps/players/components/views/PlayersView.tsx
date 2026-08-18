@@ -2,7 +2,7 @@
 
 import FusePageCarded from '@fuse/core/FusePageCarded';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
 import PlayersTable from '../ui/PlayersTable';
 
 const Root = styled(FusePageCarded)(() => ({

@@ -53,7 +53,7 @@ function DataTableTopToolbar<TData extends MRT_RowData>({ table }: MRT_TopToolba
 		table
 	};
 	return (
-		<div className="flex w-full flex-col border-b-1 px-3 py-1">
+		<div className="flex w-full flex-col border-b-1 px-5 py-3">
 			<Box
 				className="flex w-full flex-col items-center"
 				{...restToolbarProps}
@@ -96,7 +96,7 @@ function DataTableTopToolbar<TData extends MRT_RowData>({ table }: MRT_TopToolba
 								<MRT_GlobalFilterTextField
 									{...globalFilterProps}
 									sx={{
-										'& .MuiOutlinedInput-root': { height: 32, minHeight: 32, paddingX: 1 }
+										'& .MuiOutlinedInput-root': { height: 40, minHeight: 40, paddingX: 1.5 }
 									}}
 								/>
 							)}

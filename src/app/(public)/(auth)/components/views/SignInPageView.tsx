@@ -25,7 +25,7 @@ function SignInPageView() {
 						}}
 					>
 						Staff access only. This console manages players, wallets, games, and content for{' '}
-						<b>Goldrush</b>.
+						<b>WinPeak</b>.
 					</Box>
 				</div>
 			</Paper>

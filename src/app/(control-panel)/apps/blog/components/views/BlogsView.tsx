@@ -13,9 +13,9 @@ import NavLinkAdapter from '@fuse/core/NavLinkAdapter';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { format } from 'date-fns';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useBlogs, useDeleteBlog } from '@/app/(control-panel)/goldrush/api/hooks/useBlogs';
-import type { BlogPost } from '@/app/(control-panel)/goldrush/api/types';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useBlogs, useDeleteBlog } from '@/app/(control-panel)/ops/api/hooks/useBlogs';
+import type { BlogPost } from '@/app/(control-panel)/ops/api/types';
 
 const Root = styled(FusePageCarded)(() => ({
 	'& .container': {
@@ -70,7 +70,7 @@ function BlogsView() {
 			header={
 				<AdminPageHeader
 					title="Blog"
-					subtitle="Posts that appear on the Goldrush site"
+					subtitle="Posts that appear on the WinPeak site"
 					action={
 						<Button
 							variant="contained"

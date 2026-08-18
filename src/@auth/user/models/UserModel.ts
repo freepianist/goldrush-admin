@@ -16,7 +16,7 @@ function UserModel(data?: PartialDeep<User>): User {
 		email: '',
 		shortcuts: [],
 		settings: {},
-		loginRedirectUrl: '/dashboards/goldrush'
+		loginRedirectUrl: '/dashboards/winpeak'
 	}) as User;
 }
 

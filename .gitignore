@@ -65,3 +65,10 @@ amplifytools.xcconfig
 
 # Local Netlify folder
 .netlify
+
+# Generated Prisma client
+/src/generated/prisma
+
+# Mirrored public-site uploads for admin previews
+/public/uploads/*
+!/public/uploads/.gitkeep

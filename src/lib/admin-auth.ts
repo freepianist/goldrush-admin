@@ -1,4 +1,5 @@
 import { auth } from '@auth/authJs';
+import { prisma } from '@/lib/db';
 
 function rolesOf(role: string[] | string | null | undefined) {
 	if (!role) return [];
@@ -14,6 +15,47 @@ export async function requireAdmin() {
 	}
 
 	return session;
+}
+
+export async function requireAffiliate() {
+	const session = await auth();
+	const roles = rolesOf(session?.db?.role);
+
+	if (!session?.db || !roles.includes('affiliate')) {
+		return null;
+	}
+
+	const email = session.db.email || session.user?.email;
+
+	if (!email) {
+		return null;
+	}
+
+	const partner = await prisma.affiliatePartner.findUnique({
+		where: { email: email.toLowerCase() }
+	});
+
+	if (!partner || (partner.status !== 'ACTIVE' && partner.status !== 'INVITED')) {
+		return null;
+	}
+
+	return { session, partner };
+}
+
+export async function requireAdminOrAffiliate() {
+	const admin = await requireAdmin();
+
+	if (admin) {
+		return { session: admin, partner: null, isAdmin: true as const };
+	}
+
+	const affiliate = await requireAffiliate();
+
+	if (affiliate) {
+		return { ...affiliate, isAdmin: false as const };
+	}
+
+	return null;
 }
 
 export function unauthorized() {

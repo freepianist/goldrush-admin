@@ -31,7 +31,6 @@ function AuthJsForm(props: AuthJsFormProps) {
 			)}
 			{formType === 'signin' && <AuthJsCredentialsSignInForm />}
 			{formType === 'signup' && <AuthJsCredentialsSignUpForm />}
-			<AuthJsProviderSelect />
 		</div>
 	);
 }

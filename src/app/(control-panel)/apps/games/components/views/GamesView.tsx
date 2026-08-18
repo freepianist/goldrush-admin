@@ -7,9 +7,9 @@ import FuseLoading from '@fuse/core/FuseLoading';
 import FusePageCarded from '@fuse/core/FusePageCarded';
 import { Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import AdminPageHeader from '@/app/(control-panel)/goldrush/components/AdminPageHeader';
-import { useGames } from '@/app/(control-panel)/goldrush/api/hooks/useContent';
-import type { GameStat } from '@/app/(control-panel)/goldrush/api/types';
+import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
+import { useGames } from '@/app/(control-panel)/ops/api/hooks/useContent';
+import type { GameStat } from '@/app/(control-panel)/ops/api/types';
 import { formatMoney } from '@/lib/money';
 
 const Root = styled(FusePageCarded)(() => ({
