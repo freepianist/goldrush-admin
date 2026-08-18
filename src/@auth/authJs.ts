@@ -1,3 +1,4 @@
+import '@/lib/env-bootstrap';
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import { User } from '@auth/user';
 import { createStorage } from 'unstorage';
