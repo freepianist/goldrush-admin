@@ -6,13 +6,11 @@ import themeOptions from 'src/configs/themeOptions';
 import _ from 'lodash';
 import LightDarkModeToggle from 'src/components/LightDarkModeToggle';
 import useFuseLayoutSettings from '@fuse/core/FuseLayout/useFuseLayoutSettings';
-import NotificationPanelToggleButton from '@/app/(control-panel)/apps/notifications/components/ui/notification-panel/NotificationPanelToggleButton';
 import AdjustFontSize from '../../components/AdjustFontSize';
 import FullScreenToggle from '../../components/FullScreenToggle';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import NavigationShortcuts from '../../components/navigation/NavigationShortcuts';
 import NavigationSearch from '../../components/navigation/NavigationSearch';
-import QuickPanelToggleButton from '../../components/quickPanel/QuickPanelToggleButton';
 import { Layout1ConfigDefaultsType } from '@/components/theme-layouts/layout1/Layout1Config';
 import useThemeMediaQuery from '../../../../@fuse/hooks/useThemeMediaQuery';
 import { AppBar, Divider } from '@mui/material';
@@ -68,8 +66,6 @@ function ToolbarLayout1(props: ToolbarLayout1Props) {
 							darkTheme={_.find(themeOptions, { id: 'Default Dark' })}
 						/>
 						<NavigationSearch />
-						<QuickPanelToggleButton />
-						<NotificationPanelToggleButton />
 					</div>
 
 					{config.navbar.display && config.navbar.position === 'right' && (

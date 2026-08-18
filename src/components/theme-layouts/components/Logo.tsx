@@ -20,15 +20,15 @@ function Logo(props: LogoProps) {
 
 	return (
 		<Root className={clsx('flex flex-shrink-0 flex-grow items-center gap-3', className)}>
-			<div className="flex flex-1 items-center gap-2">
+			<div className="flex flex-1 items-end gap-2">
 				<img
 					className="logo-icon h-8 w-auto"
 					src="/assets/images/logo/winpeak-logo.png"
 					alt="WinPeak"
 				/>
-				<div className="logo-text flex flex-auto flex-col gap-0.5">
+				<div className="logo-text flex flex-auto flex-col">
 					<Typography
-						className="tracking-light text-[12px] leading-none font-semibold"
+						className="tracking-light pb-1.5 text-[12px] leading-none font-semibold"
 						color="text.secondary"
 					>
 						Admin

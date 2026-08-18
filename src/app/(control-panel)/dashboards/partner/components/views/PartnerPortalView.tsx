@@ -38,12 +38,14 @@ function PartnerPortalView() {
 		);
 	}
 
+	const floor =
+		data.partner.minFtdAmount > 0 ? ` · FTD ${formatMoney(data.partner.minFtdAmount)}+` : '';
 	const deal =
 		data.partner.dealType === 'CPA'
-			? `CPA ${formatMoney(data.partner.cpaAmount)} per first deposit`
+			? `CPA ${formatMoney(data.partner.cpaAmount)} per first deposit${floor}`
 			: data.partner.dealType === 'REVSHARE'
-				? `${data.partner.revSharePercent}% of referred player GGR`
-				: `CPA ${formatMoney(data.partner.cpaAmount)} plus ${data.partner.revSharePercent}% rev share`;
+				? `${data.partner.revSharePercent}% of referred player GGR${floor}`
+				: `CPA ${formatMoney(data.partner.cpaAmount)} plus ${data.partner.revSharePercent}% rev share${floor}`;
 
 	return (
 		<FusePageSimple

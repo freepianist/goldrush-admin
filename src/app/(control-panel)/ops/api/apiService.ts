@@ -14,6 +14,7 @@ import type {
 	LedgerItem,
 	MarketingStats,
 	Player,
+	StaffMember,
 	Subscriber,
 	SuccessStory
 } from './types';
@@ -99,5 +100,10 @@ export const winpeakApi = {
 		unwrap(api.post('winpeak/affiliates/payouts', { json: data }).json<AffiliatePayout>()),
 	updatePayout: (id: string, data: { status?: string; note?: string }) =>
 		unwrap(api.patch(`winpeak/affiliates/payouts/${id}`, { json: data }).json<AffiliatePayout>()),
-	getMyAffiliate: () => unwrap(api.get('winpeak/affiliates/me').json<AffiliatePartnerDetail>())
+	getMyAffiliate: () => unwrap(api.get('winpeak/affiliates/me').json<AffiliatePartnerDetail>()),
+	getStaff: () => unwrap(api.get('winpeak/staff').json<StaffMember[]>()),
+	inviteStaff: (data: { name: string; email: string; password?: string }) =>
+		unwrap(api.post('winpeak/staff', { json: data }).json<StaffMember>()),
+	updateStaff: (id: string, data: { name?: string; status?: string; password?: string }) =>
+		unwrap(api.patch(`winpeak/staff/${id}`, { json: data }).json<StaffMember>())
 };

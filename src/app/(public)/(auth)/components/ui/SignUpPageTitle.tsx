@@ -1,24 +1,19 @@
 import Typography from '@mui/material/Typography';
-import Link from '@fuse/core/Link';
 
 function SignUpPageTitle() {
 	return (
 		<div className="w-full">
 			<img
-				className="w-12"
-				src="/assets/images/logo/logo.svg"
-				alt="logo"
+				className="h-10 w-auto"
+				src="/assets/images/logo/winpeak-logo.png"
+				alt="WinPeak"
 			/>
 
-			<Typography className="mt-8 text-4xl leading-[1.25] font-extrabold tracking-tight">Sign up</Typography>
+			<Typography className="mt-8 text-4xl leading-[1.25] font-extrabold tracking-tight">
+				Partner application
+			</Typography>
 			<div className="mt-0.5 flex items-baseline font-medium">
-				<Typography>Already have an account?</Typography>
-				<Link
-					className="ml-1"
-					to="/sign-in"
-				>
-					Sign in
-				</Link>
+				<Typography color="text.secondary">Staff must approve your account before you can sign in</Typography>
 			</div>
 		</div>
 	);

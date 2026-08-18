@@ -52,6 +52,16 @@ export const useInvitePartner = () => {
 	});
 };
 
+export const useReviewPartner = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, status }: { id: string; status: 'ACTIVE' | 'CLOSED' }) =>
+			winpeakApi.updatePartner(id, { status }),
+		onSuccess: (_data, vars) => invalidateAffiliateQueries(queryClient, vars.id)
+	});
+};
+
 export const useUpdatePartner = (id: string) => {
 	const queryClient = useQueryClient();
 
@@ -117,5 +127,33 @@ export const useMyAffiliate = () => {
 	return useQuery({
 		queryFn: winpeakApi.getMyAffiliate,
 		queryKey: myAffiliateQueryKey
+	});
+};
+
+export const staffQueryKey = ['winpeak', 'staff'];
+
+export const useStaff = () => {
+	return useQuery({
+		queryFn: winpeakApi.getStaff,
+		queryKey: staffQueryKey
+	});
+};
+
+export const useInviteStaff = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (data: { name: string; email: string; password?: string }) => winpeakApi.inviteStaff(data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: staffQueryKey })
+	});
+};
+
+export const useUpdateStaff = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: ({ id, ...data }: { id: string; name?: string; status?: string; password?: string }) =>
+			winpeakApi.updateStaff(id, data),
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: staffQueryKey })
 	});
 };

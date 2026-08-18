@@ -7,9 +7,10 @@ import useNavigate from '@fuse/hooks/useNavigate';
 import useUser from '@auth/useUser';
 
 const PARTNER_PREFIXES = ['/dashboards/partner', '/apps/partner'];
+const MARKETING_PREFIXES = ['/dashboards/marketing', '/apps/partners', '/apps/commissions', '/apps/payouts'];
 
-function isPartnerPath(pathname: string) {
-	return PARTNER_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+function matchesPrefix(pathname: string, prefixes: string[]) {
+	return prefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 function AffiliateRouteGate({ children }: { children: ReactNode }) {
@@ -18,13 +19,18 @@ function AffiliateRouteGate({ children }: { children: ReactNode }) {
 	const navigate = useNavigate();
 	const roles = Array.isArray(user?.role) ? user.role : user?.role ? [user.role] : [];
 	const isAffiliateOnly = roles.includes('affiliate') && !roles.includes('admin');
-	const blocked = isAffiliateOnly && !isPartnerPath(pathname);
+	const isManagerOnly =
+		roles.includes('affiliate_manager') && !roles.includes('admin') && !roles.includes('affiliate');
+	const home = isAffiliateOnly ? '/dashboards/partner' : '/dashboards/marketing';
+	const blocked =
+		(isAffiliateOnly && !matchesPrefix(pathname, PARTNER_PREFIXES)) ||
+		(isManagerOnly && !matchesPrefix(pathname, MARKETING_PREFIXES));
 
 	useEffect(() => {
 		if (blocked) {
-			navigate('/dashboards/partner');
+			navigate(home);
 		}
-	}, [blocked, navigate]);
+	}, [blocked, home, navigate]);
 
 	if (blocked) {
 		return <FuseLoading />;

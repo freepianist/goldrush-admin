@@ -42,24 +42,3 @@ export function getSiteUrl() {
 			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
 	);
 }
-
-/** Auth.js reads AUTH_URL raw and crashes if the host has no https://. */
-export function ensureAuthUrl() {
-	const siteUrl = getSiteUrl();
-
-	if (process.env.AUTH_URL) {
-		process.env.AUTH_URL = normalizeSiteUrl(process.env.AUTH_URL);
-	} else {
-		process.env.AUTH_URL = siteUrl;
-	}
-
-	if (process.env.NEXTAUTH_URL) {
-		process.env.NEXTAUTH_URL = normalizeSiteUrl(process.env.NEXTAUTH_URL);
-	}
-
-	if (process.env.NEXT_PUBLIC_BASE_URL) {
-		process.env.NEXT_PUBLIC_BASE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_BASE_URL);
-	}
-}
-
-ensureAuthUrl();

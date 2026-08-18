@@ -81,19 +81,19 @@ export const themesConfig: FuseThemesType = {
 	default: {
 		palette: {
 			mode: 'light',
-			primary: { main: '#1F232B', light: '#363B44', dark: '#0F1115', contrastText: '#FFFFFF' },
-			secondary: { main: '#FFBA23', light: '#FFD56A', dark: '#C48A00', contrastText: '#1F232B' },
+			primary: { main: '#1565C0', light: '#42A5F5', dark: '#0D47A1', contrastText: '#FFFFFF' },
+			secondary: { main: '#2196F3', light: '#64B5F6', dark: '#1565C0', contrastText: '#FFFFFF' },
 			...neutralsLightTheme,
-			text: { primary: '#1F232B', secondary: '#4B5563', disabled: '#9CA3AF' },
-			background: { default: '#F6F7F8', paper: '#FFFFFF' },
-			divider: '#E5E7EB',
+			text: { primary: '#0F172A', secondary: '#475569', disabled: '#94A3B8' },
+			background: { default: '#F3F6FB', paper: '#FFFFFF' },
+			divider: '#D7E3F4',
 			action: {
-				active: '#4B5563',
-				hover: '#E5E7EB',
-				selected: '#D1D5DB',
+				active: '#1565C0',
+				hover: '#E3F0FC',
+				selected: '#BBDEFB',
 				disabled: '#BFC4CC',
-				disabledBackground: '#F6F7F8',
-				focus: '#D1D5DB'
+				disabledBackground: '#F3F6FB',
+				focus: '#BBDEFB'
 			}
 		}
 	},
@@ -101,16 +101,16 @@ export const themesConfig: FuseThemesType = {
 		palette: {
 			mode: 'dark',
 			primary: {
-				main: '#2B2F38',
-				light: '#414652',
-				dark: '#16191E',
+				main: '#3B82F6',
+				light: '#60A5FA',
+				dark: '#1D4ED8',
 				contrastText: '#FFFFFF'
 			},
 			secondary: {
-				main: '#FFBA23',
-				light: '#FFD56A',
-				dark: '#C48A00',
-				contrastText: '#1F232B'
+				main: '#38BDF8',
+				light: '#7DD3FC',
+				dark: '#0284C7',
+				contrastText: '#0F172A'
 			},
 			...neutralsDarkTheme,
 			text: {
@@ -119,17 +119,17 @@ export const themesConfig: FuseThemesType = {
 				disabled: '#6B7280'
 			},
 			background: {
-				default: '#0F1115',
-				paper: '#1A1D22'
+				default: '#0B1220',
+				paper: '#111827'
 			},
-			divider: '#2D3139',
+			divider: '#1E3A5F',
 			action: {
-				active: '#CDD1D9',
-				hover: 'rgba(255,255,255,0.08)',
-				selected: 'rgba(255,255,255,0.16)',
+				active: '#93C5FD',
+				hover: 'rgba(59,130,246,0.12)',
+				selected: 'rgba(59,130,246,0.2)',
 				disabled: 'rgba(255,255,255,0.3)',
 				disabledBackground: 'rgba(255,255,255,0.12)',
-				focus: 'rgba(255,255,255,0.12)'
+				focus: 'rgba(59,130,246,0.24)'
 			}
 		}
 	},
@@ -137,18 +137,18 @@ export const themesConfig: FuseThemesType = {
 		palette: {
 			mode: 'light',
 			...neutralsLightTheme,
-			primary: { main: '#1F232B', light: '#363B44', dark: '#0F1115', contrastText: '#FFFFFF' },
-			secondary: { main: '#FFBA23', light: '#FFD56A', dark: '#C48A00', contrastText: '#1F232B' },
-			text: { primary: '#1F232B', secondary: '#4B5563', disabled: '#9CA3AF' },
-			background: { default: '#E5E7EB', paper: '#FFFFFF' },
-			divider: '#E5E7EB',
+			primary: { main: '#1565C0', light: '#42A5F5', dark: '#0D47A1', contrastText: '#FFFFFF' },
+			secondary: { main: '#2196F3', light: '#64B5F6', dark: '#1565C0', contrastText: '#FFFFFF' },
+			text: { primary: '#0F172A', secondary: '#475569', disabled: '#94A3B8' },
+			background: { default: '#E8EEF6', paper: '#FFFFFF' },
+			divider: '#D7E3F4',
 			action: {
-				active: '#4B5563',
-				hover: '#E5E7EB',
-				selected: '#D1D5DB',
+				active: '#1565C0',
+				hover: '#E3F0FC',
+				selected: '#BBDEFB',
 				disabled: '#BFC4CC',
-				disabledBackground: '#F6F7F8',
-				focus: '#D1D5DB'
+				disabledBackground: '#F3F6FB',
+				focus: '#BBDEFB'
 			}
 		}
 	},

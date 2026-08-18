@@ -6,11 +6,12 @@ const ALLOWED = [
 	/^\/401\/?$/,
 	/^\/404\/?$/,
 	/^\/sign-in(\/|$)/,
+	/^\/sign-up(\/|$)/,
 	/^\/sign-out(\/|$)/,
 	/^\/auth(\/|$)/,
 	/^\/dashboards\/?$/,
 	/^\/dashboards\/(winpeak|marketing|partner)(\/|$)/,
-	/^\/apps\/(players|ledger|games|blog|comments|reviews|stories|inbox|subscribers|partners|commissions|payouts|partner)(\/|$)/,
+	/^\/apps\/(players|ledger|games|blog|comments|reviews|stories|inbox|subscribers|partners|commissions|payouts|partner|managers)(\/|$)/,
 	/^\/api\/winpeak(\/|$)/,
 	/^\/api\/mock\/auth(\/|$)/,
 	/^\/api\/mock\/users(\/|$)/

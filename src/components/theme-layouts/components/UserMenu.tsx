@@ -27,6 +27,8 @@ type UserMenuProps = {
 function UserMenu(props: UserMenuProps) {
 	const { className, popoverProps, arrowIcon = 'lucide:chevron-up', dense = false, onlyAvatar = false } = props;
 	const { data: user, signOut, isGuest } = useUser();
+	const roles = Array.isArray(user?.role) ? user.role : user?.role ? [user.role] : [];
+	const canViewInbox = roles.includes('admin');
 	const [userMenu, setUserMenu] = useState<HTMLElement | null>(null);
 	const userMenuClick = (event: React.MouseEvent<HTMLElement>) => {
 		setUserMenu(event.currentTarget);
@@ -154,33 +156,24 @@ function UserMenu(props: UserMenuProps) {
 							<ListItemIcon>
 								<FuseSvgIcon>lucide:user-plus</FuseSvgIcon>
 							</ListItemIcon>
-							<ListItemText primary="Sign up" />
+							<ListItemText primary="Apply" />
 						</MenuItem>
 					</>
 				) : (
 					<>
-						<MenuItem
-							component={Link}
-							to="/apps/profile"
-							onClick={userMenuClose}
-							role="button"
-						>
-							<ListItemIcon>
-								<FuseSvgIcon>lucide:circle-user</FuseSvgIcon>
-							</ListItemIcon>
-							<ListItemText primary="My Profile" />
-						</MenuItem>
-						<MenuItem
-							component={Link}
-							to="/apps/mailbox"
-							onClick={userMenuClose}
-							role="button"
-						>
-							<ListItemIcon>
-								<FuseSvgIcon>lucide:mail</FuseSvgIcon>
-							</ListItemIcon>
-							<ListItemText primary="Inbox" />
-						</MenuItem>
+						{canViewInbox && (
+							<MenuItem
+								component={Link}
+								to="/apps/inbox"
+								onClick={userMenuClose}
+								role="button"
+							>
+								<ListItemIcon>
+									<FuseSvgIcon>lucide:mail</FuseSvgIcon>
+								</ListItemIcon>
+								<ListItemText primary="Inbox" />
+							</MenuItem>
+						)}
 						<MenuItem
 							onClick={() => {
 								signOut();

@@ -23,9 +23,19 @@ const authRoles = {
 	affiliate: ['affiliate'],
 
 	/**
+	 * Staff who manage affiliate partners and their progress.
+	 */
+	affiliateManager: ['affiliate_manager'],
+
+	/**
+	 * Full admin plus affiliate managers.
+	 */
+	marketing: ['admin', 'affiliate_manager'],
+
+	/**
 	 * Staff plus invited partners.
 	 */
-	partner: ['admin', 'affiliate'],
+	partner: ['admin', 'affiliate', 'affiliate_manager'],
 
 	/**
 	 * The onlyGuest role grants access to unauthenticated users.

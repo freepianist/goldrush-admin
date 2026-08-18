@@ -180,6 +180,7 @@ export type AffiliatePartner = {
 	dealType: AffiliateDealType;
 	cpaAmount: number;
 	revSharePercent: number;
+	minFtdAmount: number;
 	status: AffiliateStatus;
 	notes: string;
 	hasPassword: boolean;
@@ -257,4 +258,15 @@ export type MarketingStats = {
 		status: AffiliateStatus;
 		stats?: AffiliateBookStats;
 	}[];
+};
+
+export type StaffMember = {
+	id: string;
+	email: string;
+	name: string;
+	role: string;
+	status: string;
+	createdAt: string;
+	updatedAt: string;
+	temporaryPassword?: string;
 };

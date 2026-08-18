@@ -1,10 +1,10 @@
-import { badRequest, notFound, requireAdmin, unauthorized } from '@/lib/admin-auth';
+import { badRequest, notFound, requireMarketing, unauthorized } from '@/lib/admin-auth';
 import { bookRevShare, serializeCommission } from '@/lib/affiliates';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(_request: Request, context: RouteContext) {
-	const session = await requireAdmin();
+	const session = await requireMarketing();
 
 	if (!session) {
 		return unauthorized();

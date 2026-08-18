@@ -21,7 +21,7 @@ import Link from '@fuse/core/Link';
 import FuseSvgIcon from '@fuse/core/FuseSvgIcon';
 import { format } from 'date-fns';
 import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
-import { useInvitePartner, usePartners } from '@/app/(control-panel)/ops/api/hooks/useAffiliates';
+import { useInvitePartner, usePartners, useReviewPartner } from '@/app/(control-panel)/ops/api/hooks/useAffiliates';
 import type { AffiliateDealType, AffiliatePartner } from '@/app/(control-panel)/ops/api/types';
 import { formatMoney } from '@/lib/money';
 
@@ -37,6 +37,7 @@ const emptyForm = {
 	dealType: 'HYBRID' as AffiliateDealType,
 	cpaAmount: '50',
 	revSharePercent: '25',
+	minFtdAmount: '20',
 	notes: '',
 	password: ''
 };
@@ -44,6 +45,12 @@ const emptyForm = {
 function PartnersView() {
 	const { data: partners = [], isLoading } = usePartners();
 	const invite = useInvitePartner();
+	const review = useReviewPartner();
+	const rows = useMemo(
+		() =>
+			[...partners].sort((a, b) => Number(b.status === 'INVITED') - Number(a.status === 'INVITED')),
+		[partners]
+	);
 	const [open, setOpen] = useState(false);
 	const [form, setForm] = useState(emptyForm);
 	const [created, setCreated] = useState<AffiliatePartner | null>(null);
@@ -77,9 +84,10 @@ function PartnersView() {
 				header: 'Deal',
 				Cell: ({ row }) => {
 					const deal = row.original;
-					if (deal.dealType === 'CPA') return `CPA ${formatMoney(deal.cpaAmount)}`;
-					if (deal.dealType === 'REVSHARE') return `${deal.revSharePercent}% RS`;
-					return `CPA ${formatMoney(deal.cpaAmount)} + ${deal.revSharePercent}% RS`;
+					const floor = deal.minFtdAmount > 0 ? ` · FTD ${formatMoney(deal.minFtdAmount)}+` : '';
+					if (deal.dealType === 'CPA') return `CPA ${formatMoney(deal.cpaAmount)}${floor}`;
+					if (deal.dealType === 'REVSHARE') return `${deal.revSharePercent}% RS${floor}`;
+					return `CPA ${formatMoney(deal.cpaAmount)} + ${deal.revSharePercent}% RS${floor}`;
 				}
 			},
 			{
@@ -88,16 +96,34 @@ function PartnersView() {
 				Cell: ({ row }) => (
 					<Chip
 						size="small"
-						label={row.original.status.toLowerCase()}
-						color={row.original.status === 'ACTIVE' ? 'success' : row.original.status === 'PAUSED' ? 'warning' : 'default'}
+						label={row.original.status === 'INVITED' ? 'pending approval' : row.original.status.toLowerCase()}
+						color={
+							row.original.status === 'ACTIVE'
+								? 'success'
+								: row.original.status === 'INVITED' || row.original.status === 'PAUSED'
+									? 'warning'
+									: 'default'
+						}
 						variant="outlined"
 					/>
 				)
 			},
 			{
+				id: 'signups',
+				header: 'Invited',
+				accessorFn: (row) => row.stats?.signups || 0
+			},
+			{
 				id: 'ftds',
-				header: 'FTDs',
+				header: 'Qualified',
 				accessorFn: (row) => row.stats?.ftds || 0
+			},
+			{
+				id: 'expected',
+				header: 'Expected',
+				accessorFn: (row) => (row.stats?.bookedCpa || 0) + (row.stats?.estimatedRevShare || 0),
+				Cell: ({ row }) =>
+					formatMoney((row.original.stats?.bookedCpa || 0) + (row.original.stats?.estimatedRevShare || 0))
 			},
 			{
 				id: 'pending',
@@ -107,11 +133,37 @@ function PartnersView() {
 			},
 			{
 				accessorKey: 'createdAt',
-				header: 'Invited',
+				header: 'Applied',
 				Cell: ({ cell }) => format(new Date(cell.getValue<string>()), 'MMM d, yyyy')
+			},
+			{
+				id: 'review',
+				header: 'Review',
+				enableSorting: false,
+				Cell: ({ row }) =>
+					row.original.status === 'INVITED' ? (
+						<div className="flex gap-2">
+							<Button
+								size="small"
+								variant="contained"
+								color="secondary"
+								disabled={review.isPending}
+								onClick={() => void review.mutateAsync({ id: row.original.id, status: 'ACTIVE' })}
+							>
+								Approve
+							</Button>
+							<Button
+								size="small"
+								disabled={review.isPending}
+								onClick={() => void review.mutateAsync({ id: row.original.id, status: 'CLOSED' })}
+							>
+								Decline
+							</Button>
+						</div>
+					) : null
 			}
 		],
-		[]
+		[review.isPending]
 	);
 
 	async function handleInvite() {
@@ -121,6 +173,7 @@ function PartnersView() {
 			dealType: form.dealType,
 			cpaAmount: Number(form.cpaAmount || 0),
 			revSharePercent: Number(form.revSharePercent || 0),
+			minFtdAmount: Number(form.minFtdAmount || 0),
 			notes: form.notes,
 			password: form.password || undefined
 		});
@@ -136,7 +189,7 @@ function PartnersView() {
 			header={
 				<AdminPageHeader
 					title="Affiliate partners"
-					subtitle="Invite partners and set CPA, rev share, or hybrid terms"
+					subtitle="Approve sign-ups, invite partners, and set deal terms"
 					action={
 						<Button
 							variant="contained"
@@ -159,7 +212,7 @@ function PartnersView() {
 					elevation={2}
 				>
 					<DataTable
-						data={partners}
+						data={rows}
 						columns={columns}
 						enableRowActions={false}
 						enableRowSelection={false}
@@ -242,6 +295,14 @@ function PartnersView() {
 											fullWidth
 										/>
 									)}
+									<TextField
+										label="FTD floor"
+										type="number"
+										value={form.minFtdAmount}
+										onChange={(event) => setForm({ ...form, minFtdAmount: event.target.value })}
+										helperText="Minimum first deposit to qualify. 0 means any deposit counts."
+										fullWidth
+									/>
 									<TextField
 										label="Portal password (optional)"
 										helperText="Leave blank to generate one"

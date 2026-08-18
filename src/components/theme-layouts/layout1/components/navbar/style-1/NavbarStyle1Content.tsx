@@ -5,7 +5,6 @@ import { memo } from 'react';
 import Navigation from 'src/components/theme-layouts/components/navigation/Navigation';
 import UserMenu from 'src/components/theme-layouts/components/UserMenu';
 import Logo from '../../../../components/Logo';
-import GoToDocBox from '@/components/theme-layouts/components/GoToDocBox';
 
 const Root = styled('div')(({ theme }) => ({
 	backgroundColor: theme.vars.palette.background.default,
@@ -58,8 +57,6 @@ function NavbarStyle1Content(props: NavbarStyle1ContentProps) {
 			</StyledContent>
 
 			<div className="flex flex-col gap-3 p-3">
-				<GoToDocBox className="mx-1" />
-
 				<UserMenu className="w-full" />
 			</div>
 		</Root>

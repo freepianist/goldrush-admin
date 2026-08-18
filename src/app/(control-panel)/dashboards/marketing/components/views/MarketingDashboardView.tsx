@@ -85,7 +85,7 @@ function MarketingDashboardView() {
 			header={
 				<AdminPageHeader
 					title="Affiliate marketing"
-					subtitle="Invite partners on CPA, rev share, or hybrid. Track FTDs, commissions, and payouts."
+					subtitle="Manage partners and track invited players, qualified FTDs, and expected income."
 					action={
 						<Button
 							variant="contained"
@@ -105,7 +105,7 @@ function MarketingDashboardView() {
 						<Card
 							label="Partners"
 							value={data.partners.total.toLocaleString()}
-							hint={`${data.partners.active} active · ${data.partners.invited} invited · ${data.partners.paused} paused`}
+							hint={`${data.partners.invited} awaiting approval · ${data.partners.active} active · ${data.partners.paused} paused`}
 							to="/apps/partners"
 						/>
 						<Card
@@ -164,7 +164,15 @@ function MarketingDashboardView() {
 											</Typography>
 										</div>
 										<div className="text-right">
-											<Typography className="font-semibold">{row.stats?.ftds || 0} FTDs</Typography>
+											<Typography className="font-semibold">
+												{row.stats?.signups || 0} invited · {row.stats?.ftds || 0} qualified
+											</Typography>
+											<Typography
+												className="text-sm"
+												color="text.secondary"
+											>
+												{formatMoney((row.stats?.bookedCpa || 0) + (row.stats?.estimatedRevShare || 0))} expected
+											</Typography>
 											<Chip
 												size="small"
 												label={row.status.toLowerCase()}
