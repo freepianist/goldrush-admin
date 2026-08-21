@@ -43,6 +43,13 @@ const navigationConfig: FuseNavItemType[] = [
 				url: '/apps/players'
 			},
 			{
+				id: 'apps.wallet-requests',
+				title: 'Wallet requests',
+				type: 'item',
+				icon: 'lucide:wallet',
+				url: '/apps/wallet-requests'
+			},
+			{
 				id: 'apps.ledger',
 				title: 'Ledger',
 				type: 'item',

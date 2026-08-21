@@ -16,7 +16,8 @@ import type {
 	Player,
 	StaffMember,
 	Subscriber,
-	SuccessStory
+	SuccessStory,
+	WalletRequest
 } from './types';
 
 async function unwrap<T>(request: Promise<T>) {
@@ -38,10 +39,17 @@ export const winpeakApi = {
 	getPlayer: (id: string) => unwrap(api.get(`winpeak/users/${id}`).json<Player>()),
 	updatePlayer: (id: string, data: Partial<Player>) =>
 		unwrap(api.patch(`winpeak/users/${id}`, { json: data }).json<Player>()),
-	adjustWallet: (id: string, type: 'deposit' | 'withdraw', amount: number) =>
-		unwrap(api.post(`winpeak/users/${id}/wallet`, { json: { type, amount } }).json<Player>()),
 	resetPassword: (id: string, password: string) =>
 		unwrap(api.post(`winpeak/users/${id}/password`, { json: { password } }).json<{ success: boolean }>()),
+	getWalletRequests: (params?: { status?: string; userId?: string }) => {
+		const search = new URLSearchParams();
+		if (params?.status) search.set('status', params.status);
+		if (params?.userId) search.set('userId', params.userId);
+		const suffix = search.toString() ? `?${search.toString()}` : '';
+		return unwrap(api.get(`winpeak/wallet-requests${suffix}`).json<WalletRequest[]>());
+	},
+	updateWalletRequest: (id: string, data: { status: 'APPROVED' | 'REJECTED'; reviewNote?: string }) =>
+		unwrap(api.patch(`winpeak/wallet-requests/${id}`, { json: data }).json<WalletRequest>()),
 	getLedger: (params?: { kind?: string; userId?: string }) => {
 		const search = new URLSearchParams();
 		if (params?.kind) search.set('kind', params.kind);
