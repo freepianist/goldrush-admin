@@ -12,6 +12,7 @@ export type Player = {
 	createdAt: string;
 	updatedAt: string;
 	balance: number;
+	heldBalance: number;
 	currency: string;
 	ledgerCount: number;
 	reviewCount: number;
@@ -19,6 +20,26 @@ export type Player = {
 };
 
 export type LedgerKind = 'BET' | 'WIN' | 'CANCEL' | 'DEPOSIT' | 'WITHDRAW';
+
+export type WalletRequestType = 'DEPOSIT' | 'WITHDRAW';
+export type WalletRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type WalletRequest = {
+	id: string;
+	userId: string;
+	playerName: string;
+	playerEmail: string;
+	currency: string;
+	type: WalletRequestType;
+	amount: number;
+	status: WalletRequestStatus;
+	note: string;
+	reviewNote: string;
+	reviewedBy: string;
+	reviewedAt: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
 
 export type LedgerItem = {
 	id: string;

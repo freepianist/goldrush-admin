@@ -18,8 +18,14 @@ import { motion } from 'motion/react';
 import { type MRT_ColumnDef } from 'material-react-table';
 import DataTable from 'src/components/data-table/DataTable';
 import AdminPageHeader from '@/app/(control-panel)/ops/components/AdminPageHeader';
-import { useAdjustWallet, usePlayer, useResetPassword, useUpdatePlayer } from '@/app/(control-panel)/ops/api/hooks/usePlayers';
-import type { LedgerItem } from '@/app/(control-panel)/ops/api/types';
+import {
+	usePlayer,
+	useResetPassword,
+	useUpdatePlayer,
+	useUpdateWalletRequest,
+	useWalletRequests
+} from '@/app/(control-panel)/ops/api/hooks/usePlayers';
+import type { LedgerItem, WalletRequest } from '@/app/(control-panel)/ops/api/types';
 import { formatMoney } from '@/lib/money';
 import { format } from 'date-fns';
 import { enqueueSnackbar } from 'notistack';
@@ -37,10 +43,10 @@ type FormType = z.infer<typeof schema>;
 function PlayerView() {
 	const { playerId } = useParams() as { playerId: string };
 	const { data: player, isLoading, isError } = usePlayer(playerId);
+	const { data: walletRequests = [] } = useWalletRequests({ userId: playerId });
 	const { mutateAsync: updatePlayer, isPending: saving } = useUpdatePlayer(playerId);
-	const { mutateAsync: adjustWallet, isPending: adjusting } = useAdjustWallet(playerId);
 	const { mutateAsync: resetPassword, isPending: resetting } = useResetPassword(playerId);
-	const [amount, setAmount] = useState('');
+	const updateRequest = useUpdateWalletRequest();
 	const [password, setPassword] = useState('');
 
 	const methods = useForm<FormType>({
@@ -92,6 +98,86 @@ function PlayerView() {
 		[player?.currency]
 	);
 
+	const requestColumns = useMemo<MRT_ColumnDef<WalletRequest>[]>(
+		() => [
+			{ accessorKey: 'type', header: 'Type' },
+			{
+				accessorKey: 'amount',
+				header: 'Amount',
+				Cell: ({ row }) => formatMoney(row.original.amount, player?.currency)
+			},
+			{
+				accessorKey: 'status',
+				header: 'Status',
+				Cell: ({ row }) => (
+					<Chip
+						size="small"
+						label={row.original.status.toLowerCase()}
+						color={
+							row.original.status === 'APPROVED'
+								? 'success'
+								: row.original.status === 'REJECTED'
+									? 'error'
+									: 'warning'
+						}
+						variant="outlined"
+					/>
+				)
+			},
+			{
+				accessorKey: 'createdAt',
+				header: 'When',
+				Cell: ({ cell }) => format(new Date(cell.getValue<string>()), 'MMM d, yyyy HH:mm')
+			},
+			{
+				id: 'actions',
+				header: 'Actions',
+				Cell: ({ row }) =>
+					row.original.status === 'PENDING' ? (
+						<div className="flex gap-1">
+							<Button
+								size="small"
+								color="secondary"
+								onClick={() =>
+									void updateRequest
+										.mutateAsync({ id: row.original.id, status: 'APPROVED' })
+										.then(() => enqueueSnackbar('Request approved', { variant: 'success' }))
+										.catch((error: unknown) =>
+											enqueueSnackbar(
+												error instanceof Error ? error.message : 'Could not approve',
+												{ variant: 'error' }
+											)
+										)
+								}
+							>
+								Approve
+							</Button>
+							<Button
+								size="small"
+								color="error"
+								onClick={() =>
+									void updateRequest
+										.mutateAsync({ id: row.original.id, status: 'REJECTED' })
+										.then(() => enqueueSnackbar('Request rejected', { variant: 'success' }))
+										.catch((error: unknown) =>
+											enqueueSnackbar(
+												error instanceof Error ? error.message : 'Could not reject',
+												{ variant: 'error' }
+											)
+										)
+								}
+							>
+								Reject
+							</Button>
+						</div>
+					) : (
+						<span>—</span>
+					)
+			}
+		],
+		[player?.currency, updateRequest]
+	);
+
 	if (isLoading) {
 		return <FuseLoading />;
 	}
@@ -117,23 +203,6 @@ function PlayerView() {
 			enqueueSnackbar('Player updated', { variant: 'success' });
 		} catch (error) {
 			enqueueSnackbar(error instanceof Error ? error.message : 'Could not save player', { variant: 'error' });
-		}
-	}
-
-	async function onWallet(type: 'deposit' | 'withdraw') {
-		const value = Number(amount);
-
-		if (!Number.isFinite(value) || value <= 0) {
-			enqueueSnackbar('Enter a valid amount', { variant: 'warning' });
-			return;
-		}
-
-		try {
-			await adjustWallet({ type, amount: value });
-			setAmount('');
-			enqueueSnackbar(type === 'deposit' ? 'Balance credited' : 'Balance withdrawn', { variant: 'success' });
-		} catch (error) {
-			enqueueSnackbar(error instanceof Error ? error.message : 'Wallet update failed', { variant: 'error' });
 		}
 	}
 
@@ -174,10 +243,18 @@ function PlayerView() {
 				<div className="flex flex-col gap-6 p-4 sm:p-6">
 					<div className="grid gap-4 md:grid-cols-3">
 						<Paper className="rounded-xl p-5 shadow-sm">
-							<Typography color="text.secondary">Wallet</Typography>
+							<Typography color="text.secondary">Available balance</Typography>
 							<Typography className="mt-1 text-3xl font-semibold">
 								{formatMoney(player.balance, player.currency)}
 							</Typography>
+							{player.heldBalance > 0 ? (
+								<Typography
+									className="mt-2 text-sm"
+									color="text.secondary"
+								>
+									{formatMoney(player.heldBalance, player.currency)} held
+								</Typography>
+							) : null}
 							<Chip
 								className="mt-3"
 								size="small"
@@ -285,54 +362,56 @@ function PlayerView() {
 							/>
 						</Paper>
 
-						<div className="flex flex-col gap-6">
-							<Paper className="flex flex-col gap-4 rounded-xl p-6 shadow-sm">
-								<Typography className="text-lg font-semibold">Adjust wallet</Typography>
-								<TextField
-									label="Amount"
-									type="number"
-									value={amount}
-									onChange={(event) => setAmount(event.target.value)}
-									fullWidth
-								/>
-								<div className="flex gap-2">
-									<Button
-										variant="contained"
-										color="secondary"
-										disabled={adjusting}
-										onClick={() => onWallet('deposit')}
-									>
-										Credit
-									</Button>
-									<Button
-										variant="outlined"
-										color="error"
-										disabled={adjusting}
-										onClick={() => onWallet('withdraw')}
-									>
-										Debit
-									</Button>
-								</div>
-							</Paper>
-							<Paper className="flex flex-col gap-4 rounded-xl p-6 shadow-sm">
-								<Typography className="text-lg font-semibold">Reset password</Typography>
-								<TextField
-									label="New password"
-									type="password"
-									value={password}
-									onChange={(event) => setPassword(event.target.value)}
-									fullWidth
-								/>
-								<Button
-									variant="outlined"
-									disabled={resetting}
-									onClick={onResetPassword}
-								>
-									Set password
-								</Button>
-							</Paper>
-						</div>
+						<Paper className="flex flex-col gap-4 rounded-xl p-6 shadow-sm">
+							<Typography className="text-lg font-semibold">Reset password</Typography>
+							<TextField
+								label="New password"
+								type="password"
+								value={password}
+								onChange={(event) => setPassword(event.target.value)}
+								fullWidth
+							/>
+							<Button
+								variant="outlined"
+								disabled={resetting}
+								onClick={onResetPassword}
+							>
+								Set password
+							</Button>
+							<Typography
+								className="text-sm"
+								color="text.secondary"
+							>
+								Wallet changes happen only by approving player deposit/withdraw requests.
+							</Typography>
+							<Button
+								component={Link}
+								to="/apps/wallet-requests"
+								variant="text"
+								size="small"
+							>
+								Open wallet requests
+							</Button>
+						</Paper>
 					</div>
+
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+					>
+						<Typography className="mb-3 text-lg font-semibold">Wallet requests</Typography>
+						<Paper
+							className="overflow-hidden rounded-xl"
+							elevation={1}
+						>
+							<DataTable
+								data={walletRequests}
+								columns={requestColumns}
+								enableRowActions={false}
+								enableRowSelection={false}
+							/>
+						</Paper>
+					</motion.div>
 
 					<motion.div
 						initial={{ opacity: 0 }}

@@ -32,7 +32,7 @@ const Root = styled('div')<FusePageCardedProps>(({ theme, ...props }) => ({
 	flex: '1 1 auto',
 	width: '100%',
 	height: 'auto',
-	padding: '0 16px',
+	padding: '16px 24px 24px',
 	backgroundColor: theme.vars.palette.background.default,
 
 	'& .FusePageCarded-scroll-content': {
@@ -50,7 +50,7 @@ const Root = styled('div')<FusePageCardedProps>(({ theme, ...props }) => ({
 		backgroundColor: theme.vars.palette.background.paper,
 		boxShadow: theme.vars.shadows[2],
 		borderRadius: '12px 12px 0 0',
-		margin: '2px 2px 0 2px',
+		margin: '12px 0 0 0',
 		...(props.scroll === 'content' && {
 			position: 'absolute',
 			top: 0,

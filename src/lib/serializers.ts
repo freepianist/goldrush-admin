@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db';
 import { money } from '@/lib/money';
+import { availableBalance } from '@/lib/wallet';
 
 export type BlogBody = {
 	intro: string[];
@@ -51,9 +52,14 @@ export function serializeUser(user: {
 	notes: string | null;
 	createdAt: Date;
 	updatedAt: Date;
-	wallet?: { balance: { toString(): string } | number; currency: string } | null;
+	wallet?: {
+		balance: { toString(): string } | number;
+		heldBalance?: { toString(): string } | number | null;
+		currency: string;
+	} | null;
 	_count?: { ledger: number; reviews: number };
 }) {
+	const heldBalance = money(user.wallet?.heldBalance);
 	return {
 		id: user.id,
 		email: user.email,
@@ -65,7 +71,8 @@ export function serializeUser(user: {
 		notes: user.notes || '',
 		createdAt: user.createdAt.toISOString(),
 		updatedAt: user.updatedAt.toISOString(),
-		balance: money(user.wallet?.balance),
+		balance: user.wallet ? availableBalance(user.wallet) : 0,
+		heldBalance,
 		currency: user.wallet?.currency || 'USD',
 		ledgerCount: user._count?.ledger ?? 0,
 		reviewCount: user._count?.reviews ?? 0
@@ -100,6 +107,43 @@ export function serializeLedger(entry: {
 		providerId: entry.providerId,
 		gameCode: entry.gameCode,
 		createdAt: entry.createdAt.toISOString()
+	};
+}
+
+export function serializeWalletRequest(row: {
+	id: string;
+	userId: string;
+	type: string;
+	amount: { toString(): string } | number;
+	status: string;
+	note: string | null;
+	reviewNote: string | null;
+	reviewedBy: string | null;
+	reviewedAt: Date | null;
+	createdAt: Date;
+	updatedAt: Date;
+	user?: {
+		firstName: string;
+		lastName: string;
+		email: string;
+		wallet?: { currency: string } | null;
+	};
+}) {
+	return {
+		id: row.id,
+		userId: row.userId,
+		playerName: row.user ? `${row.user.firstName} ${row.user.lastName}`.trim() : '',
+		playerEmail: row.user?.email || '',
+		currency: row.user?.wallet?.currency || 'USD',
+		type: row.type,
+		amount: money(row.amount),
+		status: row.status,
+		note: row.note || '',
+		reviewNote: row.reviewNote || '',
+		reviewedBy: row.reviewedBy || '',
+		reviewedAt: row.reviewedAt?.toISOString() || null,
+		createdAt: row.createdAt.toISOString(),
+		updatedAt: row.updatedAt.toISOString()
 	};
 }
 

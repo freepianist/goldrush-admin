@@ -5,6 +5,7 @@ import type { Player } from '../types';
 
 export const playersQueryKey = ['winpeak', 'players'];
 export const playerQueryKey = (id: string) => ['winpeak', 'players', id];
+export const walletRequestsQueryKey = ['winpeak', 'wallet-requests'];
 
 export const usePlayers = () => {
 	return useQuery({
@@ -34,15 +35,30 @@ export const useUpdatePlayer = (id: string) => {
 	});
 };
 
-export const useAdjustWallet = (id: string) => {
+export const useWalletRequests = (params?: { status?: string; userId?: string }) => {
+	return useQuery({
+		queryFn: () => winpeakApi.getWalletRequests(params),
+		queryKey: [...walletRequestsQueryKey, params?.status || 'all', params?.userId || 'all']
+	});
+};
+
+export const useUpdateWalletRequest = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: ({ type, amount }: { type: 'deposit' | 'withdraw'; amount: number }) =>
-			winpeakApi.adjustWallet(id, type, amount),
-		onSuccess: () => {
+		mutationFn: ({
+			id,
+			status,
+			reviewNote
+		}: {
+			id: string;
+			status: 'APPROVED' | 'REJECTED';
+			reviewNote?: string;
+		}) => winpeakApi.updateWalletRequest(id, { status, reviewNote }),
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({ queryKey: walletRequestsQueryKey });
 			queryClient.invalidateQueries({ queryKey: playersQueryKey });
-			queryClient.invalidateQueries({ queryKey: playerQueryKey(id) });
+			queryClient.invalidateQueries({ queryKey: playerQueryKey(data.userId) });
 			queryClient.invalidateQueries({ queryKey: ['winpeak', 'ledger'] });
 			queryClient.invalidateQueries({ queryKey: statsQueryKey });
 		}
